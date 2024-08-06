@@ -1,26 +1,27 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import RecipeList from './components/RecipeList';
+import RecipeDetail from './components/RecipeDetail';
+import RecipeForm from './components/RecipeForm';
+import Navbar from './components/Navbar'; // Navbar importieren
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+  const App: React.FC = () => {
+    return (
+        <Router>
+      <Navbar /> {/* Navbar hinzufügen */}
+          <Routes>
+            <Route path="/" element={<RecipeList />} />
+            <Route path="/recipe/:id" element={<RecipeDetail />} />
+            <Route path="/new" element={<RecipeForm />} />
+            <Route path="/edit/:id" element={<RecipeForm />} />
+          </Routes>
+        </Router>
+    );
+  };
 
-export default App;
+  export default App;
+
+
+
+
