@@ -22,7 +22,7 @@ jobs:
       - name: install pack
         run: (curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.35.1/pack-v0.35.1-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack)
       - name: Build image
-        run: pack build docker.io/darthkali/${{ env.IMAGE_NAME }} \
+        run: pack build docker.io/darthkali/${{ env.IMAGE_NAME }}
           --tag docker.io/darthkali/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }}
           --builder paketobuildpacks/builder:base
           --path .
