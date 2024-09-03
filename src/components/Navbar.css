@@ -4,7 +4,7 @@
     background-color: #388047;
     padding: 10px 20px;
     display: flex;
-    justify-content: center;
+    /*justify-content: center;*/
     align-items: center;
     color: #fff;
     margin-bottom: 20px; /* Abstand unter der Navbar */
@@ -14,7 +14,7 @@
     max-width: 800px; /* Gleiche Breite wie der Hauptinhalt */
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    /*justify-content: space-between;*/
     align-items: center;
 }
 
@@ -23,6 +23,7 @@
     font-weight: bold;
     color: #fff;
     text-decoration: none;
+    margin-right: 50px;
 }
 
 .navbar-links {
@@ -39,4 +40,8 @@
 
 .navbar-link:hover {
     color: #e0e0e0;
+}
+
+.version {
+    font-size: 12px;
 }
