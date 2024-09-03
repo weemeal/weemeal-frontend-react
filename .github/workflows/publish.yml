@@ -26,6 +26,8 @@ jobs:
           --builder paketobuildpacks/builder:base
           --path .
           --env "BP_JVM_VERSION=17"
-          
-          docker push docker.io/darthkali/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }}
-          docker push docker.io/darthkali/${{ env.IMAGE_NAME }}:latest
+      - name: Docker Push Latest
+        run: docker push docker.io/darthkali/${{ env.IMAGE_NAME }}:latest
+      - name: Docker Push Latest
+        run: docker push docker.io/darthkali/${{ env.IMAGE_NAME }}:${{ github.event.release.tag_name }}
+        
