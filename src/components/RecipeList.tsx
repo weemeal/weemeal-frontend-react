@@ -29,7 +29,7 @@ const RecipeList: React.FC = () => {
 
     return (
     <div className="recipe-list-container">
-            <h1>Rezeptliste v1</h1>
+            <h1>Rezeptliste</h1>
 
       {/* Suchfeld */}
       <input

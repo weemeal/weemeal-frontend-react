@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RecipeList from './components/RecipeList';
 import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
-import Navbar from './components/Navbar'; // Navbar importieren
+import Navbar from './components/Navbar';
 
   const App: React.FC = () => {
     return (
