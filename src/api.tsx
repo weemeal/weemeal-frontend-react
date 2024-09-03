@@ -1,7 +1,7 @@
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL as string;
 
 export const fetchRecipes = async () => {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(`${API_BASE_URL}/api/recipes/`);
     if (!response.ok) {
         throw new Error('Failed to fetch recipes');
     }
@@ -9,7 +9,7 @@ export const fetchRecipes = async () => {
 };
 
 export const fetchRecipeById = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}${id}`);
+    const response = await fetch(`${API_BASE_URL}/api/recipes/${id}`);
     if (!response.ok) {
         throw new Error(`Failed to fetch recipe with id: ${id}`);
     }
@@ -17,7 +17,7 @@ export const fetchRecipeById = async (id: string) => {
 };
 
 export const createRecipe = async (recipe: any) => {
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetch(`${API_BASE_URL}/api/recipes/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export const createRecipe = async (recipe: any) => {
 };
 
 export const updateRecipe = async (recipe: any) => {
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetch(`${API_BASE_URL}/api/recipes/`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ export const updateRecipe = async (recipe: any) => {
 };
 
 export const deleteRecipe = async (id: string) => {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/recipes/${id}`, {
         method: 'DELETE',
     });
     if (!response.ok) {
