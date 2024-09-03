@@ -1,19 +1,16 @@
-// src/components/RecipeForm.tsx
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Recipe } from '../types/recipe';
-import { v4 as uuidv4 } from 'uuid';
-import './RecipeForm.css'; // Importiere das CSS
+import { fetchRecipeById, createRecipe, updateRecipe } from '../api';
+import './RecipeForm.css';
 
 const RecipeForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [recipe, setRecipe] = useState<Recipe>({
-        id: '',
+    const [recipe, setRecipe] = useState<any>({
+        recipeId: '',
         name: '',
-        portion: 1,
-        instructions: '',
+        recipeYield: 1,
+        recipeInstructions: '',
         ingredients: [],
     });
 
@@ -21,81 +18,73 @@ const RecipeForm: React.FC = () => {
 
     useEffect(() => {
         if (id) {
-            const storedRecipes = localStorage.getItem('recipes');
-            if (storedRecipes) {
-                const recipes: Recipe[] = JSON.parse(storedRecipes);
-                const foundRecipe = recipes.find((r) => r.id === id);
-                if (foundRecipe) {
-                    setRecipe(foundRecipe);
-                }
-            }
+            fetchRecipeById(id).then(setRecipe).catch(console.error);
         }
     }, [id]);
 
   useEffect(() => {
-    adjustTextareaHeight(); // Anpassung der Textarea-Höhe beim ersten Rendern
-  }, [recipe.instructions]); // Trigger auf Anleitungsänderung
+        adjustTextareaHeight();
+    }, [recipe.recipeInstructions]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setRecipe((prevRecipe) => ({
+        setRecipe((prevRecipe: any) => ({
             ...prevRecipe,
-            [name]: name === 'portion' ? parseInt(value, 10) : value,
+            [name]: name === 'recipeYield' ? parseInt(value, 10) : value,
         }));
     };
 
   // Funktion zum Erhöhen der Portionen
   const increasePortion = () => {
-    setRecipe((prevRecipe) => ({
+        setRecipe((prevRecipe: any) => ({
       ...prevRecipe,
-      portion: prevRecipe.portion + 1,
+            recipeYield: prevRecipe.recipeYield + 1,
     }));
   };
 
   // Funktion zum Verringern der Portionen
   const decreasePortion = () => {
-    setRecipe((prevRecipe) => ({
+        setRecipe((prevRecipe: any) => ({
       ...prevRecipe,
-      portion: prevRecipe.portion > 1 ? prevRecipe.portion - 1 : 1,
+            recipeYield: prevRecipe.recipeYield > 1 ? prevRecipe.recipeYield - 1 : 1,
     }));
   };
 
     const handleIngredientChange = (index: number, value: string) => {
         const newIngredients = [...recipe.ingredients];
         newIngredients[index] = value;
-        setRecipe((prevRecipe) => ({
+        setRecipe((prevRecipe: any) => ({
             ...prevRecipe,
             ingredients: newIngredients,
         }));
     };
 
     const addIngredient = () => {
-        setRecipe((prevRecipe) => ({
+        setRecipe((prevRecipe: any) => ({
             ...prevRecipe,
             ingredients: [...prevRecipe.ingredients, ''],
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const storedRecipes = localStorage.getItem('recipes');
-        const recipes: Recipe[] = storedRecipes ? JSON.parse(storedRecipes) : [];
+        try {
         if (id) {
-            const updatedRecipes = recipes.map((r) => (r.id === id ? recipe : r));
-            localStorage.setItem('recipes', JSON.stringify(updatedRecipes));
+                await updateRecipe(recipe);
         } else {
-            const newRecipe = { ...recipe, id: uuidv4() };
-            recipes.push(newRecipe);
-            localStorage.setItem('recipes', JSON.stringify(recipes));
+                await createRecipe(recipe);
         }
         navigate('/');
+        } catch (error) {
+            console.error(error);
+        }
     };
 
   // Funktion zur dynamischen Anpassung der Textarea-Höhe
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'; // Setzt die Höhe zurück
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px'; // Setzt die Höhe auf den Scroll-Höhenwert
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
     }
   };
 
@@ -109,17 +98,17 @@ const RecipeForm: React.FC = () => {
                     <input type="text" id="name" name="name" value={recipe.name} onChange={handleChange} required/>
                 </div>
                 <div className="form-group">
-                    <label htmlFor="portion">Portionen:</label>
+                    <label htmlFor="recipeYield">Portionen:</label>
                     <div className="portion-controls">
                         <button type="button" className="portion-button" onClick={decreasePortion}>-</button>
-                        <span>{recipe.portion}</span>
+                        <span>{recipe.recipeYield}</span>
                         <button type="button" className="portion-button" onClick={increasePortion}>+</button>
                     </div>
                 </div>
                 <div className="form-content">
                     <div className="form-ingredients">
                         <h2>Zutaten:</h2>
-                        {recipe.ingredients.map((ingredient, index) => (
+                        {recipe.ingredients.map((ingredient: string, index: number) => (
                             <div key={index} className="ingredient-input">
                                 <input
                                     type="text"
@@ -136,12 +125,12 @@ const RecipeForm: React.FC = () => {
                     <div className="form-instructions">
                         <h2>Anleitung (Markdown unterstützt):</h2>
                         <textarea
-                            id="instructions"
-                            name="instructions"
-                            value={recipe.instructions}
+                            id="recipeInstructions"
+                            name="recipeInstructions"
+                            value={recipe.recipeInstructions}
                             onChange={handleChange}
                             ref={textareaRef}
-                            onInput={adjustTextareaHeight} // Ereignis zum Anpassen der Höhe
+                            onInput={adjustTextareaHeight}
                             required
                         />
                     </div>
