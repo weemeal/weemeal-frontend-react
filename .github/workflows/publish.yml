@@ -27,8 +27,3 @@ jobs:
           --env "BPE_REACT_APP_VERSION=${{ github.event.release.tag_name }}"
           --builder paketobuildpacks/builder:base
           --publish
-        
-
-
-
-

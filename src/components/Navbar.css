@@ -4,31 +4,42 @@
     background-color: #388047;
     padding: 10px 20px;
     display: flex;
-    /*justify-content: center;*/
-    align-items: center;
+    justify-content: center; /* Zentriere die Navbar-Inhalte */
     color: #fff;
     margin-bottom: 20px; /* Abstand unter der Navbar */
 }
 
 .navbar-container {
-    max-width: 800px; /* Gleiche Breite wie der Hauptinhalt */
+
     width: 100%;
     display: flex;
-    /*justify-content: space-between;*/
+    justify-content: space-between; /* Links und rechts platzieren */
+    align-items: center;
+}
+
+.navbar-left {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-right {
+    display: flex;
     align-items: center;
 }
 
 .navbar-logo {
+    display: flex; /* Ermöglicht das nebeneinander platzieren von Logo und Text */
+    align-items: center;
     font-size: 24px;
     font-weight: bold;
     color: #fff;
     text-decoration: none;
-    margin-right: 50px;
 }
 
-.navbar-links {
-    display: flex;
-    gap: 20px;
+.navbar-logo .logo {
+    width: 40px; /* Breite des Logos */
+    height: 40px; /* Höhe des Logos */
+    margin-right: 10px; /* Abstand zwischen Logo und Text */
 }
 
 .navbar-link {
@@ -36,12 +47,16 @@
     text-decoration: none;
     font-size: 18px;
     transition: color 0.3s;
+    display: flex; /* Ermöglicht das Icon und den Text nebeneinander zu platzieren */
+    align-items: center;
+    gap: 8px; /* Abstand zwischen Icon und Linktext */
 }
 
 .navbar-link:hover {
-    color: #e0e0e0;
+    color: #e0e0e0; /* Farbe beim Hover über einen Link */
 }
 
-.version {
-    font-size: 12px;
+.navbar-link svg {
+    width: 18px; /* Größe des Icons */
+    height: 18px; /* Größe des Icons */
 }

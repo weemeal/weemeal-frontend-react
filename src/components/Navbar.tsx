@@ -1,20 +1,22 @@
-// src/components/Navbar.tsx
-
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBook } from '@fortawesome/free-solid-svg-icons'; // Icon für Rezepte
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
-    const version = process.env.REACT_APP_VERSION;
-
     return (
         <nav className="navbar">
             <div className="navbar-container">
-                <Link to="/" className="navbar-logo">
-                    Rezeptverwaltung  <span className="version">{process.env.REACT_APP_VERSION}</span>
-                </Link>
-                <div className="navbar-links">
-                    <Link to="/new" className="navbar-link">Neues Rezept</Link>
+                <div className="navbar-left">
+                    <Link to="/" className="navbar-link">
+                        <FontAwesomeIcon icon={faBook} /> Rezepte
+                    </Link>
+                </div>
+                <div className="navbar-right">
+                    <Link to="/" className="navbar-logo">
+                        <img src="/logo512.png" alt="WeeMeal Logo" className="logo" /> WeeMeal
+                    </Link>
                 </div>
             </div>
         </nav>
