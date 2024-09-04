@@ -1,9 +1,7 @@
-/* src/RecipeList.css */
-
 .recipe-list {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Abstand zwischen den Karten */
+  gap: 16px;
 }
 
 .card {
@@ -29,4 +27,14 @@
 
 .card .qr-code {
   margin-left: 16px;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
 }

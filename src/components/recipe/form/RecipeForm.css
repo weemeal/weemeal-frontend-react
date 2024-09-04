@@ -1,12 +1,38 @@
-/* src/components/RecipeForm.css */
-
 .recipe-form-container {
-  max-width: 900px; /* Breite der Karte erhöht */
+    max-width: 900px;
     margin: 0 auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recipe-form-title {
+    text-align: center;
+    font-family: 'Rubik', sans-serif;
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-group-inline {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-group-inline label {
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
 }
 
 h1 {
@@ -38,15 +64,15 @@ textarea {
 }
 
 textarea {
-  resize: none; /* Verhindert manuelle Größenänderung durch den Benutzer */
-  overflow: hidden; /* Verhindert Scrollbalken */
-  min-height: 100px; /* Mindesthöhe festlegen */
-  font-family: 'Arial', sans-serif; /* Konsistente Schriftart */
+    resize: none;
+    overflow: hidden;
+    min-height: 100px;
+    font-family: 'Arial', sans-serif;
 }
 
 textarea:focus {
   outline: none;
-  border-color: #007bff; /* Fokusrahmenfarbe */
+    border-color: #007bff;
 }
 
 .portion-controls {
@@ -72,15 +98,15 @@ textarea:focus {
 
 .form-content {
     display: flex;
-    gap: 20px; /* Abstand zwischen den Spalten */
+    gap: 20px;
 }
 
 .form-ingredients {
-    flex: 3; /* 30% der Breite */
+    flex: 3;
 }
 
 .form-instructions {
-    flex: 7; /* 70% der Breite */
+    flex: 7;
 }
 
 .form-ingredients h2,
@@ -118,7 +144,7 @@ textarea:focus {
     cursor: pointer;
     font-size: 18px;
     transition: background-color 0.3s;
-    margin-top: 20px;
+    margin-bottom: 15px;
 }
 
 .save-button:hover {
@@ -129,7 +155,7 @@ textarea:focus {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 200px; /* Höhe kann angepasst werden */
+    height: 200px;
 }
 
 .spinner {
@@ -147,7 +173,6 @@ textarea:focus {
     }
 }
 
-/* Spinner im Speichern-Button */
 .button-spinner {
     border: 3px solid rgba(255, 255, 255, 0.3);
     border-top: 3px solid #fff;
