@@ -35,7 +35,7 @@ The application uses Docker Compose to start the PostgreSQL database and the bac
   ```
   This starts the following services:
   - `PostgreSQL Database`: Runs on port 5432.
-  - `Spring Boot Backend`: Runs on port 8081.
+  - `Spring Boot Backend`: Runs on port 8081. (replace the image in the docker-compose with ypur own backend, if you want)
   For more details about the services, check the docker-compose.yml file.
 
 2. Start the Frontend
