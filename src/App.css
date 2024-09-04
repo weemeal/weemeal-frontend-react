@@ -1,7 +1,7 @@
 .recipe-list {
   display: flex;
   flex-direction: column;
-  gap: 16px; /* Abstand zwischen den Karten */
+  gap: 16px;
 }
 
 .card {
@@ -37,5 +37,4 @@
 
 .main-content {
   flex: 1;
-  padding: 20px;
 }

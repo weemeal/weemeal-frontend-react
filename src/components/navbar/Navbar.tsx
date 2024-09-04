@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook } from '@fortawesome/free-solid-svg-icons';
+import {Link} from 'react-router-dom';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faBook} from '@fortawesome/free-solid-svg-icons';
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
             <div className="navbar-container">
                 <div className="navbar-left">
                     <Link to="/" className="navbar-link">
-                        <FontAwesomeIcon icon={faBook} /> Rezepte
+                        <FontAwesomeIcon icon={faBook}/> Rezeptbuch
                     </Link>
                 </div>
                 <div className="navbar-right">

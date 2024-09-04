@@ -1,20 +1,18 @@
 .navbar {
     background-color: #388047;
-    padding: 10px 20px;
     display: flex;
-    justify-content: center; /* Zentriere die Navbar-Inhalte */
+    justify-content: center;
     color: #fff;
-    margin-bottom: 20px; /* Abstand unter der Navbar */
-    position: sticky; /* Sticky position für die Navbar */
-    top: 0; /* Immer am oberen Rand kleben */
-    z-index: 1000; /* Sicherstellen, dass die Navbar über dem Inhalt bleibt */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 5px 20px;
 }
 
 .navbar-container {
-
     width: 100%;
     display: flex;
-    justify-content: space-between; /* Links und rechts platzieren */
+    justify-content: space-between;
     align-items: center;
 }
 
@@ -29,7 +27,7 @@
 }
 
 .navbar-logo {
-    display: flex; /* Ermöglicht das nebeneinander platzieren von Logo und Text */
+    display: flex;
     align-items: center;
     font-size: 24px;
     font-weight: bold;
@@ -38,9 +36,9 @@
 }
 
 .navbar-logo .logo {
-    width: 40px; /* Breite des Logos */
-    height: 40px; /* Höhe des Logos */
-    margin-right: 10px; /* Abstand zwischen Logo und Text */
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
 }
 
 .navbar-link {
@@ -48,16 +46,16 @@
     text-decoration: none;
     font-size: 18px;
     transition: color 0.3s;
-    display: flex; /* Ermöglicht das Icon und den Text nebeneinander zu platzieren */
+    display: flex;
     align-items: center;
-    gap: 8px; /* Abstand zwischen Icon und Linktext */
+    gap: 8px;
 }
 
 .navbar-link:hover {
-    color: #e0e0e0; /* Farbe beim Hover über einen Link */
+    color: #e0e0e0;
 }
 
 .navbar-link svg {
-    width: 18px; /* Größe des Icons */
-    height: 18px; /* Größe des Icons */
+    width: 18px;
+    height: 18px;
 }

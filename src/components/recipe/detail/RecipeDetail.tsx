@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { fetchRecipeById, deleteRecipe } from '../../../Api';
+import React, {useEffect, useState} from 'react';
+import {Link, useParams} from 'react-router-dom';
+import {deleteRecipe, fetchRecipeById} from '../../../Api';
 import QRCode from 'qrcode.react';
-import { marked } from 'marked';
+import {marked} from 'marked';
 import './RecipeDetail.css';
 
 const RecipeDetail: React.FC = () => {
@@ -20,12 +20,12 @@ const RecipeDetail: React.FC = () => {
                     } else {
                         setError(true);
                     }
-                    setLoading(false); // Laden abgeschlossen
+                    setLoading(false);
                 })
                 .catch((err) => {
                     console.error(err);
                     setError(true);
-                    setLoading(false); // Auch im Fehlerfall das Laden stoppen
+                    setLoading(false);
                 });
         }
     }, [id]);
@@ -40,7 +40,7 @@ const RecipeDetail: React.FC = () => {
     if (loading) {
         return (
             <div className="loading-spinner">
-                <div className="spinner"></div> {/* Ladekreis */}
+                <div className="spinner"></div>
             </div>
         );
     }

@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { fetchRecipeById, createRecipe, updateRecipe } from '../../../Api';
+import React, {useEffect, useRef, useState} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {createRecipe, fetchRecipeById, updateRecipe} from '../../../Api';
 import './RecipeForm.css';
 
 const RecipeForm: React.FC = () => {
@@ -78,20 +78,20 @@ const RecipeForm: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        setIsSubmitting(true); // Speichervorgang startet
+        setIsSubmitting(true);
 
         try {
         if (id) {
                 await updateRecipe(recipe);
-                navigate(`/recipe/${id}`); // Zur Detailseite des aktualisierten Rezepts
+            navigate(`/recipe/${id}`);
         } else {
                 const newRecipe = await createRecipe(recipe);
-                navigate(`/recipe/${newRecipe.recipeId}`); // Zur Detailseite des neuen Rezepts
+            navigate(`/recipe/${newRecipe.recipeId}`);
         }
         } catch (error) {
             console.error(error);
         } finally {
-            setIsSubmitting(false); // Speichervorgang abgeschlossen
+            setIsSubmitting(false);
         }
     };
 
@@ -105,7 +105,7 @@ const RecipeForm: React.FC = () => {
     if (loading) {
         return (
             <div className="loading-spinner">
-                <div className="spinner"></div> {/* Ladekreis */}
+                <div className="spinner"></div>
             </div>
         );
     }
@@ -120,7 +120,7 @@ const RecipeForm: React.FC = () => {
             <form onSubmit={handleSubmit}>
                 <button type="submit" className="save-button" disabled={isSubmitting}>
                     {isSubmitting ? (
-                        <span className="button-spinner"></span> // Ladespinner im Button
+                        <span className="button-spinner"></span>
                     ) : (
                         'Speichern'
                     )}
@@ -134,7 +134,7 @@ const RecipeForm: React.FC = () => {
                         value={recipe.name}
                         onChange={handleChange}
                         required
-                        disabled={isSubmitting} // Eingabefelder deaktiviert, wenn speichert
+                        disabled={isSubmitting}
                     />
                 </div>
                 <div className="form-group">
@@ -144,7 +144,7 @@ const RecipeForm: React.FC = () => {
                             type="button"
                             className="portion-button"
                             onClick={decreasePortion}
-                            disabled={isSubmitting} // Button deaktiviert, wenn speichert
+                            disabled={isSubmitting}
                         >
                             -
                         </button>
@@ -153,7 +153,7 @@ const RecipeForm: React.FC = () => {
                             type="button"
                             className="portion-button"
                             onClick={increasePortion}
-                            disabled={isSubmitting} // Button deaktiviert, wenn speichert
+                            disabled={isSubmitting}
                         >
                             +
                         </button>
@@ -169,7 +169,7 @@ const RecipeForm: React.FC = () => {
                                     value={ingredient}
                                     onChange={(e) => handleIngredientChange(index, e.target.value)}
                                     required
-                                    disabled={isSubmitting} // Eingabefelder deaktiviert, wenn speichert
+                                    disabled={isSubmitting}
                                 />
                             </div>
                         ))}
@@ -177,7 +177,7 @@ const RecipeForm: React.FC = () => {
                             type="button"
                             className="add-ingredient-button"
                             onClick={addIngredient}
-                            disabled={isSubmitting} // Button deaktiviert, wenn speichert
+                            disabled={isSubmitting}
                         >
                             Zutat hinzufügen
                         </button>
@@ -192,7 +192,7 @@ const RecipeForm: React.FC = () => {
                             ref={textareaRef}
                             onInput={adjustTextareaHeight}
                             required
-                            disabled={isSubmitting} // Textarea deaktiviert, wenn speichert
+                            disabled={isSubmitting}
                         />
                     </div>
                 </div>
