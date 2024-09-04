@@ -5,23 +5,25 @@ import RecipeList from './components/RecipeList';
 import RecipeDetail from './components/RecipeDetail';
 import RecipeForm from './components/RecipeForm';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';  // Footer importieren
 
   const App: React.FC = () => {
     return (
         <Router>
+            <div className="app-container">
       <Navbar /> {/* Navbar hinzufügen */}
+                <div className="main-content">
           <Routes>
             <Route path="/" element={<RecipeList />} />
             <Route path="/recipe/:id" element={<RecipeDetail />} />
             <Route path="/new" element={<RecipeForm />} />
             <Route path="/edit/:id" element={<RecipeForm />} />
           </Routes>
+                </div>
+                <Footer /> {/* Footer hinzufügen */}
+            </div>
         </Router>
     );
   };
 
   export default App;
-
-
-
-

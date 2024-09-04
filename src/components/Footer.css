@@ -1,0 +1,39 @@
+.footer {
+    background-color: #388047; /* Gleiche grüne Farbe wie die Navbar */
+    color: #fff; /* Weiße Schrift */
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky; /* Sticky position für den Footer */
+    bottom: 0; /* Immer am unteren Rand kleben */
+    z-index: 1000; /* Sicherstellen, dass der Footer über dem Inhalt bleibt */
+}
+
+.footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    /*max-width: 1000px; !* Maximalbreite für den Inhalt *!*/
+}
+
+.footer-left {
+    font-size: 14px; /* Kleinere Schriftgröße für den Footer */
+}
+
+.footer-right {
+    display: flex;
+    gap: 20px; /* Abstand zwischen den Links */
+}
+
+.footer-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px; /* Kleinere Schriftgröße */
+    transition: color 0.3s;
+}
+
+.footer-link:hover {
+    color: #e0e0e0; /* Helle Farbe beim Hover über einen Link */
+}
