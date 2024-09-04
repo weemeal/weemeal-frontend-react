@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchRecipes } from '../Api';
+import { fetchRecipes } from '../../../Api';
 import QRCode from 'qrcode.react';
 import './RecipeList.css';
 

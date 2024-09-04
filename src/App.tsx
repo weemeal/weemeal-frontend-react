@@ -1,11 +1,11 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import RecipeList from './components/RecipeList';
-import RecipeDetail from './components/RecipeDetail';
-import RecipeForm from './components/RecipeForm';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';  // Footer importieren
+import RecipeList from './components/recipe/list/RecipeList';
+import RecipeDetail from './components/recipe/detail/RecipeDetail';
+import RecipeForm from './components/recipe/form/RecipeForm';
+import Navbar from './components/navbar/Navbar';
+import Footer from './components/footer/Footer';  // Footer importieren
 
   const App: React.FC = () => {
     return (

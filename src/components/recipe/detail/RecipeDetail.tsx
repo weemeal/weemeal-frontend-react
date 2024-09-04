@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchRecipeById, deleteRecipe } from '../Api';
+import { fetchRecipeById, deleteRecipe } from '../../../Api';
 import QRCode from 'qrcode.react';
 import { marked } from 'marked';
 import './RecipeDetail.css';
