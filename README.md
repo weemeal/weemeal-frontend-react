@@ -25,7 +25,7 @@ npm install
 
 ## Docker Setup
 The application uses Docker Compose to start the PostgreSQL database and the backend. The docker-compose.yml file is located in the root directory of the project.
-
+Docker Images can be found on [Docker Hub](https://hub.docker.com/repository/docker/darthkali/weemeal-frontend-react/general). 
 1. Start Docker Compose
 
   Use the following command to start the Docker containers in the background:  
