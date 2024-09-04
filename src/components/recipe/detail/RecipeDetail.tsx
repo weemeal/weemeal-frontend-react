@@ -4,14 +4,15 @@ import {deleteRecipe, fetchRecipeById} from '../../../Api';
 import QRCode from 'qrcode.react';
 import {marked} from 'marked';
 import './RecipeDetail.css';
-import {faPen, faTrash} from '@fortawesome/free-solid-svg-icons'; // Icons für Bearbeiten und Löschen
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faPen, faTrash} from '@fortawesome/free-solid-svg-icons';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 
 const RecipeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
     const [recipe, setRecipe] = useState<any | null>(null);
-    const [loading, setLoading] = useState<boolean>(true); // Ladezustand
-    const [error, setError] = useState<boolean>(false); // Fehlerzustand
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<boolean>(false);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
     useEffect(() => {
         if (id) {
@@ -37,6 +38,10 @@ const RecipeDetail: React.FC = () => {
             await deleteRecipe(id);
             window.location.href = '/';
         }
+    };
+
+    const toggleModal = () => {
+        setIsModalOpen(!isModalOpen);
     };
 
     if (loading) {
@@ -65,7 +70,9 @@ const RecipeDetail: React.FC = () => {
             <div className="recipe-card">
                 <div className="recipe-header">
                     <h1 className="recipe-name">{recipe.name}</h1>
-                    <QRCode value={window.location.href} className="qr-code"/>
+                    <div className="qr-code" onClick={toggleModal}>
+                        <QRCode value={window.location.href} size={64}/>
+                    </div>
                 </div>
                 <hr className="divider"/>
                 <p className="recipe-portions"><strong>Portionen:</strong> {recipe.recipeYield}</p>
@@ -89,6 +96,14 @@ const RecipeDetail: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {isModalOpen && (
+                <div className="modal" onClick={toggleModal}>
+                    <div className="modal-content">
+                        <QRCode value={window.location.href} size={256}/>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
