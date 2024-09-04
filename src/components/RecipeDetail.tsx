@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchRecipeById, deleteRecipe } from '../api';
+import { fetchRecipeById, deleteRecipe } from '../Api';
 import QRCode from 'qrcode.react';
 import { marked } from 'marked';
 import './RecipeDetail.css';
@@ -8,10 +8,25 @@ import './RecipeDetail.css';
 const RecipeDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const [recipe, setRecipe] = useState<any | null>(null);
+    const [loading, setLoading] = useState<boolean>(true); // Ladezustand
+    const [error, setError] = useState<boolean>(false); // Fehlerzustand
 
     useEffect(() => {
         if (id) {
-            fetchRecipeById(id).then(setRecipe).catch(console.error);
+            fetchRecipeById(id)
+                .then((data) => {
+                    if (data) {
+                        setRecipe(data);
+                    } else {
+                        setError(true);
+                    }
+                    setLoading(false); // Laden abgeschlossen
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setError(true);
+                    setLoading(false); // Auch im Fehlerfall das Laden stoppen
+                });
         }
     }, [id]);
 
@@ -22,7 +37,15 @@ const RecipeDetail: React.FC = () => {
         }
     };
 
-    if (!recipe) {
+    if (loading) {
+        return (
+            <div className="loading-spinner">
+                <div className="spinner"></div> {/* Ladekreis */}
+            </div>
+        );
+    }
+
+    if (error || !recipe) {
         return <div>Rezept nicht gefunden</div>;
     }
 

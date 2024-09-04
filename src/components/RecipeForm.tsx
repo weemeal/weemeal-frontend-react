@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchRecipeById, createRecipe, updateRecipe } from '../api';
+import { fetchRecipeById, createRecipe, updateRecipe } from '../Api';
 import './RecipeForm.css';
 
 const RecipeForm: React.FC = () => {
@@ -13,12 +13,24 @@ const RecipeForm: React.FC = () => {
         recipeInstructions: '',
         ingredients: [],
     });
+    const [loading, setLoading] = useState<boolean>(!!id); // Ladezustand nur bei Bearbeitung auf true
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // Zustand für das Speichern
+    const [error, setError] = useState<boolean>(false); // Fehlerzustand
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     useEffect(() => {
         if (id) {
-            fetchRecipeById(id).then(setRecipe).catch(console.error);
+            fetchRecipeById(id)
+                .then((data) => {
+                    setRecipe(data);
+                    setLoading(false); // Laden abgeschlossen
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setError(true);
+                    setLoading(false); // Auch im Fehlerfall das Laden stoppen
+                });
         }
     }, [id]);
 
@@ -34,7 +46,6 @@ const RecipeForm: React.FC = () => {
         }));
     };
 
-  // Funktion zum Erhöhen der Portionen
   const increasePortion = () => {
         setRecipe((prevRecipe: any) => ({
       ...prevRecipe,
@@ -42,7 +53,6 @@ const RecipeForm: React.FC = () => {
     }));
   };
 
-  // Funktion zum Verringern der Portionen
   const decreasePortion = () => {
         setRecipe((prevRecipe: any) => ({
       ...prevRecipe,
@@ -68,19 +78,23 @@ const RecipeForm: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setIsSubmitting(true); // Speichervorgang startet
+
         try {
         if (id) {
                 await updateRecipe(recipe);
+                navigate(`/recipe/${id}`); // Zur Detailseite des aktualisierten Rezepts
         } else {
-                await createRecipe(recipe);
+                const newRecipe = await createRecipe(recipe);
+                navigate(`/recipe/${newRecipe.recipeId}`); // Zur Detailseite des neuen Rezepts
         }
-        navigate('/');
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsSubmitting(false); // Speichervorgang abgeschlossen
         }
     };
 
-  // Funktion zur dynamischen Anpassung der Textarea-Höhe
   const adjustTextareaHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -88,21 +102,61 @@ const RecipeForm: React.FC = () => {
     }
   };
 
+    if (loading) {
+        return (
+            <div className="loading-spinner">
+                <div className="spinner"></div> {/* Ladekreis */}
+            </div>
+        );
+    }
+
+    if (error) {
+        return <div>Fehler beim Laden des Rezepts</div>;
+    }
+
     return (
         <div className="recipe-form-container">
             <h1>{id ? 'Rezept bearbeiten' : 'Neues Rezept erstellen'}</h1>
             <form onSubmit={handleSubmit}>
-                <button type="submit" className="save-button">Speichern</button>
+                <button type="submit" className="save-button" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <span className="button-spinner"></span> // Ladespinner im Button
+                    ) : (
+                        'Speichern'
+                    )}
+                </button>
                 <div className="form-group">
                     <label htmlFor="name">Name:</label>
-                    <input type="text" id="name" name="name" value={recipe.name} onChange={handleChange} required/>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={recipe.name}
+                        onChange={handleChange}
+                        required
+                        disabled={isSubmitting} // Eingabefelder deaktiviert, wenn speichert
+                    />
                 </div>
                 <div className="form-group">
                     <label htmlFor="recipeYield">Portionen:</label>
                     <div className="portion-controls">
-                        <button type="button" className="portion-button" onClick={decreasePortion}>-</button>
+                        <button
+                            type="button"
+                            className="portion-button"
+                            onClick={decreasePortion}
+                            disabled={isSubmitting} // Button deaktiviert, wenn speichert
+                        >
+                            -
+                        </button>
                         <span>{recipe.recipeYield}</span>
-                        <button type="button" className="portion-button" onClick={increasePortion}>+</button>
+                        <button
+                            type="button"
+                            className="portion-button"
+                            onClick={increasePortion}
+                            disabled={isSubmitting} // Button deaktiviert, wenn speichert
+                        >
+                            +
+                        </button>
                     </div>
                 </div>
                 <div className="form-content">
@@ -115,10 +169,16 @@ const RecipeForm: React.FC = () => {
                                     value={ingredient}
                                     onChange={(e) => handleIngredientChange(index, e.target.value)}
                                     required
+                                    disabled={isSubmitting} // Eingabefelder deaktiviert, wenn speichert
                                 />
                             </div>
                         ))}
-                        <button type="button" className="add-ingredient-button" onClick={addIngredient}>
+                        <button
+                            type="button"
+                            className="add-ingredient-button"
+                            onClick={addIngredient}
+                            disabled={isSubmitting} // Button deaktiviert, wenn speichert
+                        >
                             Zutat hinzufügen
                         </button>
                     </div>
@@ -132,10 +192,10 @@ const RecipeForm: React.FC = () => {
                             ref={textareaRef}
                             onInput={adjustTextareaHeight}
                             required
+                            disabled={isSubmitting} // Textarea deaktiviert, wenn speichert
                         />
                     </div>
                 </div>
-
             </form>
         </div>
     );

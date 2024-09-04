@@ -1,18 +1,26 @@
-// src/components/RecipeList.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchRecipes } from '../api';
+import { fetchRecipes } from '../Api';
 import QRCode from 'qrcode.react';
 import './RecipeList.css';
 
 const RecipeList: React.FC = () => {
     const [recipes, setRecipes] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>(''); // Suchbegriff-Zustand
+    const [loading, setLoading] = useState<boolean>(true); // Ladezustand
   const navigate = useNavigate();
 
     useEffect(() => {
-        fetchRecipes().then(setRecipes).catch(console.error);
+        // Rezepte laden und Ladezustand anpassen
+        fetchRecipes()
+            .then((data) => {
+                setRecipes(data);
+                setLoading(false); // Laden abgeschlossen
+            })
+            .catch((error) => {
+                console.error(error);
+                setLoading(false); // Auch im Fehlerfall das Laden stoppen
+            });
     }, []);
 
   const handleCardClick = (id: string) => {
@@ -37,6 +45,12 @@ const RecipeList: React.FC = () => {
         className="search-input"
       />
 
+            {/* Ladezustand prüfen */}
+            {loading ? (
+                <div className="loading-spinner">
+                    <div className="spinner"></div> {/* Ladekreis hier */}
+                </div>
+            ) : (
             <div className="recipe-list">
         {filteredRecipes.map((recipe) => (
           <div className="card" key={recipe.recipeId} onClick={() => handleCardClick(recipe.recipeId)}>
@@ -47,6 +61,7 @@ const RecipeList: React.FC = () => {
                     </div>
                 ))}
             </div>
+            )}
         </div>
     );
 };
