@@ -8,8 +8,7 @@
 .recipe-actions {
     display: flex;
     justify-content: space-between;
-    /*margin-bottom: 20px;*/
-    /*margin: 20px 0px*/
+    margin-top: 20px;
 }
 
 .edit-button {

@@ -115,8 +115,12 @@ const RecipeForm: React.FC = () => {
     }
 
     return (
+        <div className="recipe-form-page">
+            {/* Überschrift außerhalb der Card */}
+            <h1 className="recipe-form-title">
+                {id ? 'Rezept bearbeiten' : 'Neues Rezept erstellen'}
+            </h1>
         <div className="recipe-form-container">
-            <h1>{id ? 'Rezept bearbeiten' : 'Neues Rezept erstellen'}</h1>
             <form onSubmit={handleSubmit}>
                 <button type="submit" className="save-button" disabled={isSubmitting}>
                     {isSubmitting ? (
@@ -125,7 +129,9 @@ const RecipeForm: React.FC = () => {
                         'Speichern'
                     )}
                 </button>
-                <div className="form-group">
+
+
+                <div className="form-group-inline">
                     <label htmlFor="name">Name:</label>
                     <input
                         type="text"
@@ -137,7 +143,8 @@ const RecipeForm: React.FC = () => {
                         disabled={isSubmitting}
                     />
                 </div>
-                <div className="form-group">
+
+                <div className="form-group-inline">
                     <label htmlFor="recipeYield">Portionen:</label>
                     <div className="portion-controls">
                         <button
@@ -197,6 +204,7 @@ const RecipeForm: React.FC = () => {
                     </div>
                 </div>
             </form>
+        </div>
         </div>
     );
 };
