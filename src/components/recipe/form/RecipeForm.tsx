@@ -13,9 +13,9 @@ const RecipeForm: React.FC = () => {
         recipeInstructions: '',
         ingredients: [],
     });
-    const [loading, setLoading] = useState<boolean>(!!id); // Ladezustand nur bei Bearbeitung auf true
-    const [isSubmitting, setIsSubmitting] = useState<boolean>(false); // Zustand für das Speichern
-    const [error, setError] = useState<boolean>(false); // Fehlerzustand
+    const [loading, setLoading] = useState<boolean>(!!id);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [error, setError] = useState<boolean>(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -24,12 +24,12 @@ const RecipeForm: React.FC = () => {
             fetchRecipeById(id)
                 .then((data) => {
                     setRecipe(data);
-                    setLoading(false); // Laden abgeschlossen
+                    setLoading(false);
                 })
                 .catch((err) => {
                     console.error(err);
                     setError(true);
-                    setLoading(false); // Auch im Fehlerfall das Laden stoppen
+                    setLoading(false);
                 });
         }
     }, [id]);
@@ -60,9 +60,12 @@ const RecipeForm: React.FC = () => {
     }));
   };
 
-    const handleIngredientChange = (index: number, value: string) => {
+    const handleIngredientChange = (index: number, field: string, value: string) => {
         const newIngredients = [...recipe.ingredients];
-        newIngredients[index] = value;
+        newIngredients[index] = {
+            ...newIngredients[index],
+            [field]: value,
+        };
         setRecipe((prevRecipe: any) => ({
             ...prevRecipe,
             ingredients: newIngredients,
@@ -72,7 +75,10 @@ const RecipeForm: React.FC = () => {
     const addIngredient = () => {
         setRecipe((prevRecipe: any) => ({
             ...prevRecipe,
-            ingredients: [...prevRecipe.ingredients, ''],
+            ingredients: [
+                ...prevRecipe.ingredients,
+                {ingredientId: '', ingredientName: '', amount: '', unit: ''},
+            ],
         }));
     };
 
@@ -116,20 +122,14 @@ const RecipeForm: React.FC = () => {
 
     return (
         <div className="recipe-form-page">
-            {/* Überschrift außerhalb der Card */}
             <h1 className="recipe-form-title">
                 {id ? 'Rezept bearbeiten' : 'Neues Rezept erstellen'}
             </h1>
         <div className="recipe-form-container">
             <form onSubmit={handleSubmit}>
                 <button type="submit" className="save-button" disabled={isSubmitting}>
-                    {isSubmitting ? (
-                        <span className="button-spinner"></span>
-                    ) : (
-                        'Speichern'
-                    )}
+                    {isSubmitting ? <span className="button-spinner"></span> : 'Speichern'}
                 </button>
-
 
                 <div className="form-group-inline">
                     <label htmlFor="name">Name:</label>
@@ -166,15 +166,36 @@ const RecipeForm: React.FC = () => {
                         </button>
                     </div>
                 </div>
+
                 <div className="form-content">
                     <div className="form-ingredients">
                         <h2>Zutaten:</h2>
-                        {recipe.ingredients.map((ingredient: string, index: number) => (
-                            <div key={index} className="ingredient-input">
+                        {recipe.ingredients.map((ingredient: any, index: number) => (
+                            <div key={ingredient.ingredientId || index} className="ingredient-input">
                                 <input
                                     type="text"
-                                    value={ingredient}
-                                    onChange={(e) => handleIngredientChange(index, e.target.value)}
+                                    value={ingredient.ingredientName}
+                                    name="ingredientName"
+                                    placeholder="Name"
+                                    onChange={(e) => handleIngredientChange(index, 'ingredientName', e.target.value)}
+                                    required
+                                    disabled={isSubmitting}
+                                />
+                                <input
+                                    type="text"
+                                    value={ingredient.amount}
+                                    name="amount"
+                                    placeholder="Menge"
+                                    onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+                                    required
+                                    disabled={isSubmitting}
+                                />
+                                <input
+                                    type="text"
+                                    value={ingredient.unit}
+                                    name="unit"
+                                    placeholder="Einheit"
+                                    onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
                                     required
                                     disabled={isSubmitting}
                                 />
@@ -189,6 +210,7 @@ const RecipeForm: React.FC = () => {
                             Zutat hinzufügen
                         </button>
                     </div>
+
                     <div className="form-instructions">
                         <h2>Anleitung (Markdown unterstützt):</h2>
                         <textarea

@@ -116,7 +116,29 @@ textarea:focus {
 }
 
 .ingredient-input {
+    display: flex;
+    gap: 10px;
     margin-bottom: 10px;
+}
+
+.ingredient-input input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.ingredient-input input[name="ingredientName"] {
+    flex-grow: 3;
+}
+
+.ingredient-input input[name="amount"] {
+    flex-grow: 1.5;
+}
+
+.ingredient-input input[name="unit"] {
+    flex-grow: 1;
 }
 
 .add-ingredient-button {
@@ -128,6 +150,12 @@ textarea:focus {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s;
+}
+
+@media (max-width: 768px) {
+    .ingredient-input {
+        flex-direction: column;
+    }
 }
 
 .add-ingredient-button:hover {
