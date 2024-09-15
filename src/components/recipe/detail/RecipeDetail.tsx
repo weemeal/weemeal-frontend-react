@@ -80,9 +80,9 @@ const RecipeDetail: React.FC = () => {
                     <div className="recipe-ingredients">
                         <h2>Zutaten</h2>
                         <div className="ingredients-list">
-                            {recipe.ingredients.map((ingredient: string, index: number) => (
-                                <div key={index} className="ingredient-card">
-                                    {ingredient}
+                            {recipe.ingredients.map((ingredient: any, index: number) => (
+                                <div key={ingredient.ingredientId || index} className="ingredient-card">
+                                    {`${ingredient.ingredientName} ${ingredient.amount} ${ingredient.unit}`}
                                 </div>
                             ))}
                         </div>
