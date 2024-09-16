@@ -37,5 +37,8 @@ export const deleteRecipe = async (id: string) => {
     if (!response.ok) {
         throw new Error(`Failed to delete recipe with id: ${id}`);
     }
-    return response.json();
+
+    if (response.status !== 204) {
+        return response.json();
+    }
 };
