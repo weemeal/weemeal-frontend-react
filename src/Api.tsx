@@ -16,7 +16,7 @@ export const fetchRecipeById = async (id: string) => {
     return response.json();
 };
 
-export const createRecipe = async (recipe: any) => {
+export const saveRecipe = async (recipe: any) => {
     const response = await fetch(`${API_BASE_URL}/api/recipes/`, {
         method: 'POST',
         headers: {
@@ -25,21 +25,7 @@ export const createRecipe = async (recipe: any) => {
         body: JSON.stringify(recipe),
     });
     if (!response.ok) {
-        throw new Error('Failed to create recipe');
-    }
-    return response.json();
-};
-
-export const updateRecipe = async (recipe: any) => {
-    const response = await fetch(`${API_BASE_URL}/api/recipes/`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(recipe),
-    });
-    if (!response.ok) {
-        throw new Error('Failed to update recipe');
+        throw new Error('Failed to save recipe');
     }
     return response.json();
 };

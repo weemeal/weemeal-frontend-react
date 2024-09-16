@@ -1,5 +1,5 @@
 .recipe-form-container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     background-color: #fff;
@@ -221,3 +221,27 @@ button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
+
+.delete-ingredient-button {
+    background-color: #dc3545;
+    color: #fff; /* Textfarbe auf Weiß setzen */
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-ingredient-button:hover {
+    background-color: #c82333;
+}
+
+.delete-ingredient-button svg {
+    width: 16px;
+    height: 16px;
+}
+
