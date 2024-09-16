@@ -1,7 +1,10 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {createRecipe, fetchRecipeById, updateRecipe} from '../../../Api';
+import {fetchRecipeById, saveRecipe} from '../../../Api';
 import './RecipeForm.css';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faTrash} from '@fortawesome/free-solid-svg-icons';
+
 
 const RecipeForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -82,18 +85,21 @@ const RecipeForm: React.FC = () => {
         }));
     };
 
+    const removeIngredient = (index: number) => {
+        const newIngredients = recipe.ingredients.filter((_: any, i: number) => i !== index);
+        setRecipe((prevRecipe: any) => ({
+            ...prevRecipe,
+            ingredients: newIngredients,
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
 
         try {
-        if (id) {
-                await updateRecipe(recipe);
-            navigate(`/recipe/${id}`);
-        } else {
-                const newRecipe = await createRecipe(recipe);
-            navigate(`/recipe/${newRecipe.recipeId}`);
-        }
+            const savedRecipe = await saveRecipe(recipe);
+            navigate(`/recipe/${savedRecipe.recipeId}`);
         } catch (error) {
             console.error(error);
         } finally {
@@ -199,6 +205,14 @@ const RecipeForm: React.FC = () => {
                                     required
                                     disabled={isSubmitting}
                                 />
+                                <button
+                                    type="button"
+                                    className="delete-ingredient-button"
+                                    onClick={() => removeIngredient(index)}
+                                    disabled={isSubmitting}
+                                >
+                                    <FontAwesomeIcon icon={faTrash}/>
+                                </button>
                             </div>
                         ))}
                         <button

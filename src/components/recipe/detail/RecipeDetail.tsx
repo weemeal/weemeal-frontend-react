@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useParams} from 'react-router-dom';
+import {Link, useNavigate, useParams} from 'react-router-dom';
 import {deleteRecipe, fetchRecipeById} from '../../../Api';
 import QRCode from 'qrcode.react';
 import {marked} from 'marked';
@@ -13,6 +13,8 @@ const RecipeDetail: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (id) {
@@ -36,12 +38,25 @@ const RecipeDetail: React.FC = () => {
     const handleDelete = async () => {
         if (id) {
             await deleteRecipe(id);
-            window.location.href = '/';
+            navigate(`/`);
         }
     };
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
+    };
+
+    const openDeleteDialog = () => {
+        setIsDeleteDialogOpen(true);
+    };
+
+    const closeDeleteDialog = () => {
+        setIsDeleteDialogOpen(false);
+    };
+
+    const confirmDelete = () => {
+        handleDelete();
+        closeDeleteDialog();
     };
 
     if (loading) {
@@ -62,7 +77,7 @@ const RecipeDetail: React.FC = () => {
                 <Link to={`/edit/${recipe.recipeId}`} className="edit-button">
                     <FontAwesomeIcon icon={faPen}/> Bearbeiten
                 </Link>
-                <button onClick={handleDelete} className="delete-button">
+                <button onClick={openDeleteDialog} className="delete-button">
                     <FontAwesomeIcon icon={faTrash}/> Löschen
                 </button>
             </div>
@@ -101,6 +116,19 @@ const RecipeDetail: React.FC = () => {
                 <div className="modal" onClick={toggleModal}>
                     <div className="modal-content">
                         <QRCode value={window.location.href} size={256}/>
+                    </div>
+                </div>
+            )}
+
+            {isDeleteDialogOpen && (
+                <div className="delete-dialog-overlay">
+                    <div className="delete-dialog">
+                        <h3>Rezept löschen</h3>
+                        <p>Bist du sicher, dass du das Rezept löschen möchtest?</p>
+                        <div className="dialog-actions">
+                            <button className="confirm-button" onClick={confirmDelete}>Ja</button>
+                            <button className="cancel-button" onClick={closeDeleteDialog}>Abbrechen</button>
+                        </div>
                     </div>
                 </div>
             )}
