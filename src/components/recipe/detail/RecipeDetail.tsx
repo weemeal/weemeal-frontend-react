@@ -18,31 +18,32 @@ const RecipeDetail: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const loadRecipe = async () => {
         if (id) {
-            fetchRecipeById(id)
-                .then((data) => {
+            try {
+                const data = await fetchRecipeById(id);
                     if (data) {
                         setRecipe(data);
                     } else {
                         setError(true);
                     }
-                    setLoading(false);
-                })
-                .catch((err) => {
+            } catch (err) {
                     console.error(err);
                     setError(true);
+            } finally {
                     setLoading(false);
-                });
         }
+        }
+        };
+        loadRecipe();
+    }, [id]);
+
+    useEffect(() => {
         if (recipe) {
-            const data = generateBringUrl(recipe)
-            if (data) {
+            const data = generateBringUrl(recipe);
                 setBringUrl(data);
-            } else {
-                setError(true)
             }
-        }
-    }, [id, recipe]);
+    }, [recipe]);
 
     const handleDelete = async () => {
         if (id) {
