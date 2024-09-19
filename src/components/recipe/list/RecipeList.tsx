@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {fetchRecipes} from '../../../Api';
+import {fetchRecipes, generateBringUrl} from '../../../Api';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import QRCode from 'qrcode.react';
@@ -8,6 +8,7 @@ import './RecipeList.css';
 
 const RecipeList: React.FC = () => {
     const [recipes, setRecipes] = useState<any[]>([]);
+    const [bringUrl, setBringUrl] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState<string>(''); // Suchbegriff-Zustand
     const [loading, setLoading] = useState<boolean>(true); // Ladezustand
     const navigate = useNavigate();
@@ -61,7 +62,7 @@ const RecipeList: React.FC = () => {
                         <div className="card" key={recipe.recipeId} onClick={() => handleCardClick(recipe.recipeId)}>
                             <div className="recipe-name">{recipe.name}</div>
                             <div className="qr-code">
-                                <QRCode value={`${window.location.origin}/recipe/${recipe.recipeId}`} size={64}/>
+                                <QRCode value={generateBringUrl(recipe)} size={64}/>
                             </div>
                         </div>
                     ))}
