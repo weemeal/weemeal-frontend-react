@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import {deleteRecipe, fetchRecipeById} from '../../../Api';
+import {deleteRecipe, fetchRecipeById, generateBringUrl} from '../../../Api';
 import QRCode from 'qrcode.react';
 import {marked} from 'marked';
 import './RecipeDetail.css';
@@ -10,6 +10,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 const RecipeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
     const [recipe, setRecipe] = useState<any | null>(null);
+    const [bringUrl, setBringUrl] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -34,6 +35,18 @@ const RecipeDetail: React.FC = () => {
                 });
         }
     }, [id]);
+
+    useEffect(() => {
+        if (recipe) {
+            const data = generateBringUrl(recipe)
+            if (data) {
+                setBringUrl(data);
+            } else {
+                setError(true)
+            }
+        }
+    }, [recipe]);
+
 
     const handleDelete = async () => {
         if (id) {
@@ -86,7 +99,7 @@ const RecipeDetail: React.FC = () => {
                 <div className="recipe-header">
                     <h1 className="recipe-name">{recipe.name}</h1>
                     <div className="qr-code" onClick={toggleModal}>
-                        <QRCode value={window.location.href} size={64}/>
+                        <QRCode value={bringUrl} size={64}/>
                     </div>
                 </div>
                 <hr className="divider"/>
@@ -115,7 +128,7 @@ const RecipeDetail: React.FC = () => {
             {isModalOpen && (
                 <div className="modal" onClick={toggleModal}>
                     <div className="modal-content">
-                        <QRCode value={window.location.href} size={256}/>
+                        <QRCode value={bringUrl} size={256}/>
                     </div>
                 </div>
             )}
