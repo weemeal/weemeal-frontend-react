@@ -34,9 +34,6 @@ const RecipeDetail: React.FC = () => {
                     setLoading(false);
                 });
         }
-    }, [id]);
-
-    useEffect(() => {
         if (recipe) {
             const data = generateBringUrl(recipe)
             if (data) {
@@ -45,8 +42,7 @@ const RecipeDetail: React.FC = () => {
                 setError(true)
             }
         }
-    }, [recipe]);
-
+    }, [id, recipe]);
 
     const handleDelete = async () => {
         if (id) {
