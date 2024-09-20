@@ -19,7 +19,7 @@ services:
 
   weemeal-backend:
     container_name: weemeal-backend
-    image: darthkali/weemeal-backend-spring:v0.2.0
+    image: darthkali/weemeal-backend-spring:latest
     environment:
       - DB_HOSTNAME=postgres_db
       - DB_PORT=5433
