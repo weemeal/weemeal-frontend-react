@@ -1,8 +1,9 @@
+import {Ingredient} from "./ingredient";
 
 export interface Recipe {
-    id: string;
+    recipeId: string;
     name: string;
-    portion: number;
-    instructions: string;
-    ingredients: string[];
+    recipeYield: number;
+    recipeInstructions: string;
+    ingredients: Ingredient[];
 }

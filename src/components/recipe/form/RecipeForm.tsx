@@ -4,12 +4,14 @@ import {fetchRecipeById, saveRecipe} from '../../../Api';
 import './RecipeForm.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
-
+import {Recipe} from "../../../types/recipe";
+import {Ingredient} from "../../../types/ingredient";
 
 const RecipeForm: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [recipe, setRecipe] = useState<any>({
+
+    const [recipe, setRecipe] = useState<Recipe>({
         recipeId: '',
         name: '',
         recipeYield: 1,
@@ -25,7 +27,7 @@ const RecipeForm: React.FC = () => {
     useEffect(() => {
         if (id) {
             fetchRecipeById(id)
-                .then((data) => {
+                .then((data: Recipe) => {
                     setRecipe(data);
                     setLoading(false);
                 })
@@ -43,21 +45,21 @@ const RecipeForm: React.FC = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setRecipe((prevRecipe: any) => ({
+        setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
             [name]: name === 'recipeYield' ? parseInt(value, 10) : value,
         }));
     };
 
   const increasePortion = () => {
-        setRecipe((prevRecipe: any) => ({
+      setRecipe((prevRecipe: Recipe) => ({
       ...prevRecipe,
             recipeYield: prevRecipe.recipeYield + 1,
     }));
   };
 
   const decreasePortion = () => {
-        setRecipe((prevRecipe: any) => ({
+      setRecipe((prevRecipe: Recipe) => ({
       ...prevRecipe,
             recipeYield: prevRecipe.recipeYield > 1 ? prevRecipe.recipeYield - 1 : 1,
     }));
@@ -69,25 +71,25 @@ const RecipeForm: React.FC = () => {
             ...newIngredients[index],
             [field]: value,
         };
-        setRecipe((prevRecipe: any) => ({
+        setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
             ingredients: newIngredients,
         }));
     };
 
     const addIngredient = () => {
-        setRecipe((prevRecipe: any) => ({
+        setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
             ingredients: [
                 ...prevRecipe.ingredients,
-                {ingredientId: '', ingredientName: '', amount: '', unit: ''},
+                {ingredientId: '', ingredientName: '', amount: 0.0, unit: ''} as Ingredient,
             ],
         }));
     };
 
     const removeIngredient = (index: number) => {
-        const newIngredients = recipe.ingredients.filter((_: any, i: number) => i !== index);
-        setRecipe((prevRecipe: any) => ({
+        const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
+        setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
             ingredients: newIngredients,
         }));
@@ -176,7 +178,7 @@ const RecipeForm: React.FC = () => {
                 <div className="form-content">
                     <div className="form-ingredients">
                         <h2>Zutaten:</h2>
-                        {recipe.ingredients.map((ingredient: any, index: number) => (
+                        {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
                             <div key={ingredient.ingredientId || index} className="ingredient-input">
                                 <input
                                     type="text"

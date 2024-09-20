@@ -1,16 +1,17 @@
 import {useEffect, useState} from 'react';
 import {fetchRecipeById} from '../Api';
+import {Recipe} from "../types/recipe";
 
-export const useRecipe = (id?: string) => {  // id als optionaler Parameter
-    const [recipe, setRecipe] = useState<any | null>(null);
+export const useRecipe = (id?: string) => {
+    const [recipe, setRecipe] = useState<Recipe | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
 
     useEffect(() => {
         const loadRecipe = async () => {
-            if (id) {  // Überprüfen, ob id vorhanden ist
+            if (id) {
                 try {
-                    const data = await fetchRecipeById(id);
+                    const data: Recipe = await fetchRecipeById(id);
                     if (data) {
                         setRecipe(data);
                     } else {

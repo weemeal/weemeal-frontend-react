@@ -8,6 +8,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useRecipe} from "../../../hooks/useRecipe";
 import {generateBringUrl} from "../../../utils/generateBringUrl";
 import {useState} from "react";
+import {Ingredient} from '../../../types/ingredient';
 
 const RecipeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -15,7 +16,7 @@ const RecipeDetail: React.FC = () => {
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    const {recipe, loading, error} = useRecipe(id);  // Verwendung des Hooks
+    const {recipe, loading, error} = useRecipe(id);
 
     const handleDelete = async () => {
         if (id) {
@@ -77,7 +78,7 @@ const RecipeDetail: React.FC = () => {
                     <div className="recipe-ingredients">
                         <h2>Zutaten</h2>
                         <div className="ingredients-list">
-                            {recipe.ingredients.map((ingredient: any, index: number) => (
+                            {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
                                 <div key={ingredient.ingredientId || index} className="ingredient-card">
                                     {`${ingredient.ingredientName} ${ingredient.amount} ${ingredient.unit}`}
                                 </div>
