@@ -1,49 +1,22 @@
-import React, {useEffect, useState} from 'react';
 import {Link, useNavigate, useParams} from 'react-router-dom';
-import {deleteRecipe, fetchRecipeById, generateBringUrl} from '../../../Api';
+import {deleteRecipe} from '../../../Api';
 import QRCode from 'qrcode.react';
 import {marked} from 'marked';
 import './RecipeDetail.css';
 import {faPen, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {useRecipe} from "../../../hooks/useRecipe";
+import {generateBringUrl} from "../../../utils/generateBringUrl";
+import {useState} from "react";
+import {Ingredient} from '../../../types/ingredient';
 
 const RecipeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
-    const [recipe, setRecipe] = useState<any | null>(null);
-    const [bringUrl, setBringUrl] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const loadRecipe = async () => {
-        if (id) {
-            try {
-                const data = await fetchRecipeById(id);
-                    if (data) {
-                        setRecipe(data);
-                    } else {
-                        setError(true);
-                    }
-            } catch (err) {
-                    console.error(err);
-                    setError(true);
-            } finally {
-                    setLoading(false);
-        }
-        }
-        };
-        loadRecipe();
-    }, [id]);
-
-    useEffect(() => {
-        if (recipe) {
-            const data = generateBringUrl(recipe);
-                setBringUrl(data);
-            }
-    }, [recipe]);
+    const {recipe, loading, error} = useRecipe(id);
 
     const handleDelete = async () => {
         if (id) {
@@ -96,7 +69,7 @@ const RecipeDetail: React.FC = () => {
                 <div className="recipe-header">
                     <h1 className="recipe-name">{recipe.name}</h1>
                     <div className="qr-code" onClick={toggleModal}>
-                        <QRCode value={bringUrl} size={64}/>
+                        <QRCode value={generateBringUrl(recipe)} size={64}/>
                     </div>
                 </div>
                 <hr className="divider"/>
@@ -105,7 +78,7 @@ const RecipeDetail: React.FC = () => {
                     <div className="recipe-ingredients">
                         <h2>Zutaten</h2>
                         <div className="ingredients-list">
-                            {recipe.ingredients.map((ingredient: any, index: number) => (
+                            {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
                                 <div key={ingredient.ingredientId || index} className="ingredient-card">
                                     {`${ingredient.ingredientName} ${ingredient.amount} ${ingredient.unit}`}
                                 </div>
@@ -125,7 +98,7 @@ const RecipeDetail: React.FC = () => {
             {isModalOpen && (
                 <div className="modal" onClick={toggleModal}>
                     <div className="modal-content">
-                        <QRCode value={bringUrl} size={256}/>
+                        <QRCode value={generateBringUrl(recipe)} size={256}/>
                     </div>
                 </div>
             )}
