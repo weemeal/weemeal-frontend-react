@@ -1,14 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {fetchRecipes, generateBringUrl} from '../../../Api';
+import {fetchRecipes} from '../../../Api';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import QRCode from 'qrcode.react';
 import './RecipeList.css';
+import {generateBringUrl} from "../../../utils/generateBringUrl";
 
 const RecipeList: React.FC = () => {
     const [recipes, setRecipes] = useState<any[]>([]);
-    const [bringUrl, setBringUrl] = useState<string>("");
     const [searchTerm, setSearchTerm] = useState<string>(''); // Suchbegriff-Zustand
     const [loading, setLoading] = useState<boolean>(true); // Ladezustand
     const navigate = useNavigate();
