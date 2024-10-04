@@ -129,16 +129,26 @@ textarea:focus {
     box-sizing: border-box;
 }
 
+.ingredient-amount-input {
+    flex-grow: 1.5;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+
 .ingredient-input input[name="ingredientName"] {
-    flex-grow: 3;
+    flex-grow: 10;
 }
 
 .ingredient-input input[name="amount"] {
-    flex-grow: 1.5;
+    flex-grow: 1;
 }
 
 .ingredient-input input[name="unit"] {
-    flex-grow: 1;
+    flex-grow: 4;
 }
 
 .add-ingredient-button {
