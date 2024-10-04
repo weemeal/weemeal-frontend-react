@@ -7,7 +7,7 @@ import {faPen, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useRecipe} from "../../../hooks/useRecipe";
 import {generateBringUrl} from "../../../utils/generateBringUrl";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Ingredient} from '../../../types/ingredient';
 
 const RecipeDetail: React.FC = () => {
@@ -17,6 +17,37 @@ const RecipeDetail: React.FC = () => {
     const navigate = useNavigate();
 
     const {recipe, loading, error} = useRecipe(id);
+    const [portion, setPortion] = useState<number>(recipe?.recipeYield || 1); // Aktuelle Portionsanzahl
+    const [adjustedIngredients, setAdjustedIngredients] = useState<Ingredient[]>([]); // Angepasste Zutatenliste
+
+    useEffect(() => {
+        if (recipe) {
+            const savedPortion = localStorage.getItem(`recipe-portion-${recipe.recipeId}`);
+            if (savedPortion) {
+                setPortion(parseInt(savedPortion, 10));
+            } else {
+                setPortion(recipe.recipeYield);
+            }
+            setAdjustedIngredients(recipe.ingredients);
+        }
+    }, [recipe]);
+
+    useEffect(() => {
+        if (recipe) {
+            localStorage.setItem(`recipe-portion-${recipe.recipeId}`, portion.toString());
+        }
+    }, [portion, recipe]);
+
+    useEffect(() => {
+        if (recipe) {
+            const ratio = portion / recipe.recipeYield;
+            const updatedIngredients = recipe.ingredients.map((ingredient) => ({
+                ...ingredient,
+                amount: Math.round(parseFloat(String(ingredient.amount).replace(',', '.')) * ratio * 100) / 100,
+            }));
+            setAdjustedIngredients(updatedIngredients);
+        }
+    }, [portion, recipe]);
 
     const handleDelete = async () => {
         if (id) {
@@ -41,6 +72,9 @@ const RecipeDetail: React.FC = () => {
         handleDelete();
         closeDeleteDialog();
     };
+
+    const increasePortion = () => setPortion((prev) => prev + 1);
+    const decreasePortion = () => setPortion((prev) => (prev > 1 ? prev - 1 : 1));
 
     if (loading) {
         return (
@@ -73,12 +107,19 @@ const RecipeDetail: React.FC = () => {
                     </div>
                 </div>
                 <hr className="divider"/>
-                <p className="recipe-portions"><strong>Portionen:</strong> {recipe.recipeYield}</p>
+
+                <div className="recipe-portions">
+                    <strong>Portionen:</strong>
+                    <button className="portion-button" onClick={decreasePortion}>-</button>
+                    <span>{portion}</span>
+                    <button className="portion-button" onClick={increasePortion}>+</button>
+                </div>
+
                 <div className="recipe-content">
                     <div className="recipe-ingredients">
                         <h2>Zutaten</h2>
                         <div className="ingredients-list">
-                            {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
+                            {adjustedIngredients.map((ingredient: Ingredient, index: number) => (
                                 <div key={ingredient.ingredientId || index} className="ingredient-card">
                                     {`${ingredient.ingredientName} ${ingredient.amount} ${ingredient.unit}`}
                                 </div>
