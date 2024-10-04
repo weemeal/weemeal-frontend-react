@@ -69,7 +69,7 @@ const RecipeForm: React.FC = () => {
         const newIngredients = [...recipe.ingredients];
         newIngredients[index] = {
             ...newIngredients[index],
-            [field]: value,
+            [field]: field === "amount" && value === "" ? "" : value,
         };
         setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
@@ -204,11 +204,10 @@ const RecipeForm: React.FC = () => {
                             <input
                                 type="number"
                                 className="ingredient-amount-input"
-                                value={ingredient.amount}
+                                value={ingredient.amount !== undefined ? String(ingredient.amount) : ""}
                                 name="amount"
-                                placeholder="Menge"
+                                placeholder="Menge (optional)"
                                 onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
-                                required
                                 disabled={isSubmitting}
                             />
                             <input
