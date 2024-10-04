@@ -43,7 +43,9 @@ const RecipeDetail: React.FC = () => {
             const ratio = portion / recipe.recipeYield;
             const updatedIngredients = recipe.ingredients.map((ingredient) => ({
                 ...ingredient,
-                amount: Math.round(parseFloat(String(ingredient.amount).replace(',', '.')) * ratio * 100) / 100,
+                amount: ingredient.amount !== undefined && ingredient.amount !== null
+                    ? Math.round(parseFloat(String(ingredient.amount).replace(',', '.')) * ratio * 100) / 100
+                    : '',
             }));
             setAdjustedIngredients(updatedIngredients);
         }
