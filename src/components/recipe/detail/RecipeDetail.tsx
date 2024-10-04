@@ -103,7 +103,7 @@ const RecipeDetail: React.FC = () => {
                 <div className="recipe-header">
                     <h1 className="recipe-name">{recipe.name}</h1>
                     <div className="qr-code" onClick={toggleModal}>
-                        <QRCode value={generateBringUrl(recipe)} size={64}/>
+                        <QRCode value={generateBringUrl(recipe, portion)} size={64}/>
                     </div>
                 </div>
                 <hr className="divider"/>
@@ -139,7 +139,7 @@ const RecipeDetail: React.FC = () => {
             {isModalOpen && (
                 <div className="modal" onClick={toggleModal}>
                     <div className="modal-content">
-                        <QRCode value={generateBringUrl(recipe)} size={256}/>
+                        <QRCode value={generateBringUrl(recipe, portion)} size={256}/>
                     </div>
                 </div>
             )}

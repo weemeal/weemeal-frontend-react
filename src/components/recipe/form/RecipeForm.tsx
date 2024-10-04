@@ -82,7 +82,7 @@ const RecipeForm: React.FC = () => {
             ...prevRecipe,
             ingredients: [
                 ...prevRecipe.ingredients,
-                {ingredientId: '', ingredientName: '', amount: 0.0, unit: ''} as Ingredient,
+                {ingredientId: '', ingredientName: '', amount: '', unit: ''} as Ingredient,
             ],
         }));
     };
@@ -175,72 +175,70 @@ const RecipeForm: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="form-content">
-                    <div className="form-ingredients">
-                        <h2>Zutaten:</h2>
-                        {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
-                            <div key={ingredient.ingredientId || index} className="ingredient-input">
-                                <input
-                                    type="text"
-                                    value={ingredient.ingredientName}
-                                    name="ingredientName"
-                                    placeholder="Name"
-                                    onChange={(e) => handleIngredientChange(index, 'ingredientName', e.target.value)}
-                                    required
-                                    disabled={isSubmitting}
-                                />
-                                <input
-                                    type="text"
-                                    value={ingredient.amount}
-                                    name="amount"
-                                    placeholder="Menge"
-                                    onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
-                                    required
-                                    disabled={isSubmitting}
-                                />
-                                <input
-                                    type="text"
-                                    value={ingredient.unit}
-                                    name="unit"
-                                    placeholder="Einheit"
-                                    onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
-                                    required
-                                    disabled={isSubmitting}
-                                />
-                                <button
-                                    type="button"
-                                    className="delete-ingredient-button"
-                                    onClick={() => removeIngredient(index)}
-                                    disabled={isSubmitting}
-                                >
-                                    <FontAwesomeIcon icon={faTrash}/>
-                                </button>
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            className="add-ingredient-button"
-                            onClick={addIngredient}
-                            disabled={isSubmitting}
-                        >
-                            Zutat hinzufügen
-                        </button>
-                    </div>
-
-                    <div className="form-instructions">
-                        <h2>Anleitung (Markdown unterstützt):</h2>
-                        <textarea
-                            id="recipeInstructions"
-                            name="recipeInstructions"
-                            value={recipe.recipeInstructions}
-                            onChange={handleChange}
-                            ref={textareaRef}
-                            onInput={adjustTextareaHeight}
-                            required
-                            disabled={isSubmitting}
-                        />
-                    </div>
+                <div className="form-instructions">
+                    <h2>Anleitung (Markdown unterstützt):</h2>
+                    <textarea
+                        id="recipeInstructions"
+                        name="recipeInstructions"
+                        value={recipe.recipeInstructions}
+                        onChange={handleChange}
+                        ref={textareaRef}
+                        onInput={adjustTextareaHeight}
+                        required
+                        disabled={isSubmitting}
+                    />
                 </div>
+                <div className="form-ingredients">
+                    <h2>Zutaten:</h2>
+                    {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
+                        <div key={ingredient.ingredientId || index} className="ingredient-input">
+                            <input
+                                type="text"
+                                value={ingredient.ingredientName}
+                                name="ingredientName"
+                                placeholder="Name"
+                                onChange={(e) => handleIngredientChange(index, 'ingredientName', e.target.value)}
+                                required
+                                disabled={isSubmitting}
+                            />
+                            <input
+                                type="number"
+                                className="ingredient-amount-input"
+                                value={ingredient.amount}
+                                name="amount"
+                                placeholder="Menge"
+                                onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+                                required
+                                disabled={isSubmitting}
+                            />
+                            <input
+                                type="text"
+                                value={ingredient.unit || ''}
+                                name="unit"
+                                placeholder="Einheit (optional)"
+                                onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+                                disabled={isSubmitting}
+                            />
+                            <button
+                                type="button"
+                                className="delete-ingredient-button"
+                                onClick={() => removeIngredient(index)}
+                                disabled={isSubmitting}
+                            >
+                                <FontAwesomeIcon icon={faTrash}/>
+                            </button>
+                        </div>
+                    ))}
+                    <button
+                        type="button"
+                        className="add-ingredient-button"
+                        onClick={addIngredient}
+                        disabled={isSubmitting}
+                    >
+                        Zutat hinzufügen
+                    </button>
+                </div>
+
             </form>
         </div>
         </div>
