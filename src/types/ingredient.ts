@@ -1,6 +1,8 @@
 export interface Ingredient {
-    ingredientId: string;
+    ingredientId?: string;
     ingredientName: string;
     unit?: string;
     amount?: string | number;
+    position: number;
+    dragDummy: string;
 }

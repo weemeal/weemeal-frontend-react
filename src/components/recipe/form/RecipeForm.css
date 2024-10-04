@@ -255,3 +255,15 @@ button:disabled {
     height: 16px;
 }
 
+.drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab; /* Zeigt an, dass das Element verschoben werden kann */
+    padding: 4px;
+    font-size: 18px; /* Symbolgröße anpassen */
+    color: #007bff;
+}
+
+
+
