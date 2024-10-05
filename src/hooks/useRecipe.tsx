@@ -24,10 +24,12 @@ export const useRecipe = (id?: string) => {
                 } finally {
                     setLoading(false);
                 }
+            } else {
+                setLoading(false);
             }
         };
         loadRecipe();
     }, [id]);
 
-    return {recipe, loading, error};
+    return {recipe, setRecipe, loading, error};
 };

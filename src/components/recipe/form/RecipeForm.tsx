@@ -5,6 +5,7 @@ import './RecipeForm.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faGripLines, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {Recipe} from "../../../types/recipe";
+import {PortionChange} from "../../../types/portion-change";
 import {Ingredient} from "../../../types/ingredient";
 import {DragDropContext, Draggable, Droppable, DropResult} from '@hello-pangea/dnd';
 import {v4 as uuidv4} from 'uuid';
@@ -13,113 +14,102 @@ import {useRecipe} from "../../../hooks/useRecipe";
 const RecipeForm: React.FC = () => {
     const {id} = useParams<{ id: string }>();
     const navigate = useNavigate();
-
-    const [recipe, setRecipe] = useState<Recipe>({
-        recipeId: '',
-        name: '',
-        recipeYield: 1,
-        recipeInstructions: '',
-        ingredients: [],
-    });
-
+    const {recipe, setRecipe, loading, error} = useRecipe(id);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-    const {
-        recipe: loadedRecipe = {recipeId: '', name: '', recipeYield: 1, recipeInstructions: '', ingredients: []},
-        loading,
-        error
-    } = useRecipe(id);
 
     useEffect(() => {
-        if (loadedRecipe) {
-            setRecipe(loadedRecipe);
+        if (recipe) {
+            adjustTextareaHeight();
         }
-    }, [loadedRecipe]);
+    }, [recipe]);
 
-    useEffect(() => {
-        adjustTextareaHeight();
-    }, [recipe.recipeInstructions]);
+    const changePortion = (changeType: PortionChange) => {
+        if (recipe) {
+            const delta = changeType === PortionChange.INCREASE ? 1 : -1;
+            setRecipe({
+                ...recipe,
+                recipeYield: Math.max(1, recipe.recipeYield + delta),
+            });
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value} = e.target;
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            [name]: name === 'recipeYield' ? parseInt(value, 10) : value,
-        }));
-    };
-
-    const increasePortion = () => {
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            recipeYield: prevRecipe.recipeYield + 1,
-        }));
-    };
-
-    const decreasePortion = () => {
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            recipeYield: prevRecipe.recipeYield > 1 ? prevRecipe.recipeYield - 1 : 1,
-        }));
+        if (recipe) {
+            setRecipe({
+                ...recipe,
+                [name]: name === 'recipeYield' ? parseInt(value, 10) : value,
+            });
+        }
     };
 
     const handleIngredientChange = (index: number, field: string, value: string) => {
-        const newIngredients = [...recipe.ingredients];
-        newIngredients[index] = {
-            ...newIngredients[index],
-            [field]: field === "amount" && value === "" ? "" : value,
-        };
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            ingredients: newIngredients,
-        }));
+        if (recipe) {
+            const newIngredients = [...recipe.ingredients];
+            newIngredients[index] = {
+                ...newIngredients[index],
+                [field]: field === "amount" && value === "" ? "" : value,
+            };
+            setRecipe({
+                ...recipe,
+                ingredients: newIngredients,
+            });
+        }
     };
 
     const addIngredient = () => {
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            ingredients: [
-                ...prevRecipe.ingredients,
-                {
-                    ingredientName: '',
-                    amount: '',
-                    unit: '',
-                    position: recipe.ingredients.length,
-                    dragDummy: uuidv4()
-                } as Ingredient,
-            ],
-        }));
+        if (recipe) {
+            setRecipe({
+                ...recipe,
+                ingredients: [
+                    ...recipe.ingredients,
+                    {
+                        ingredientName: '',
+                        amount: '',
+                        unit: '',
+                        position: recipe.ingredients.length,
+                        dragDummy: uuidv4(),
+                    } as Ingredient,
+                ],
+            });
+        }
     };
 
     const removeIngredient = (index: number) => {
-        const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            ingredients: newIngredients.map((ingredient) => ({
-                ...ingredient,
-            })),
-        }));
+        if (recipe) {
+            const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
+            setRecipe({
+                ...recipe,
+                ingredients: newIngredients.map((ingredient, i) => ({
+                    ...ingredient,
+                    position: i,
+                })),
+            });
+        }
     };
 
     const handleDragEnd = (result: DropResult) => {
-        if (!result.destination) return;
+        if (!result.destination || !recipe) return;
 
-        console.log(result)
         const reorderedIngredients = Array.from(recipe.ingredients);
         const [movedIngredient] = reorderedIngredients.splice(result.source.index, 1);
         reorderedIngredients.splice(result.destination.index, 0, movedIngredient);
 
-        setRecipe((prevRecipe: Recipe) => ({
-            ...prevRecipe,
-            ingredients: reorderedIngredients.map((ingredient) => ({
+        setRecipe({
+            ...recipe,
+            ingredients: reorderedIngredients.map((ingredient, index) => ({
                 ...ingredient,
+                position: index,
             })),
-        }));
-
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsSubmitting(true);
+
+        if (!recipe) return;
 
         try {
             const ingredientsWithUpdatedPositions = recipe.ingredients.map((ingredient, index) => ({
@@ -172,7 +162,7 @@ const RecipeForm: React.FC = () => {
                             type="text"
                             id="name"
                             name="name"
-                            value={recipe.name}
+                            value={recipe?.name || ''}
                             onChange={handleChange}
                             required
                             disabled={isSubmitting}
@@ -185,16 +175,16 @@ const RecipeForm: React.FC = () => {
                             <button
                                 type="button"
                                 className="portion-button"
-                                onClick={decreasePortion}
+                                onClick={() => changePortion(PortionChange.DECREASE)}
                                 disabled={isSubmitting}
                             >
                                 -
                             </button>
-                            <span>{recipe.recipeYield}</span>
+                            <span>{recipe?.recipeYield}</span>
                             <button
                                 type="button"
                                 className="portion-button"
-                                onClick={increasePortion}
+                                onClick={() => changePortion(PortionChange.INCREASE)}
                                 disabled={isSubmitting}
                             >
                                 +
@@ -207,7 +197,7 @@ const RecipeForm: React.FC = () => {
                         <textarea
                             id="recipeInstructions"
                             name="recipeInstructions"
-                            value={recipe.recipeInstructions}
+                            value={recipe?.recipeInstructions || ''}
                             onChange={handleChange}
                             ref={textareaRef}
                             onInput={adjustTextareaHeight}
@@ -221,7 +211,7 @@ const RecipeForm: React.FC = () => {
                             <Droppable droppableId="ingredients">
                                 {(provided) => (
                                     <div {...provided.droppableProps} ref={provided.innerRef}>
-                                        {recipe.ingredients.map((ingredient: Ingredient, index: number) => (
+                                        {recipe?.ingredients.map((ingredient: Ingredient, index: number) => (
                                             <Draggable key={ingredient.ingredientId || index}
                                                        draggableId={String(ingredient.ingredientId ?? ingredient.dragDummy)}
                                                        index={index}>
