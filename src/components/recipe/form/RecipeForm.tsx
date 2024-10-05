@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {fetchRecipeById, saveRecipe} from '../../../Api';
+import {saveRecipe} from '../../../Api';
 import './RecipeForm.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faGripLines, faTrash} from '@fortawesome/free-solid-svg-icons';
@@ -8,6 +8,7 @@ import {Recipe} from "../../../types/recipe";
 import {Ingredient} from "../../../types/ingredient";
 import {DragDropContext, Draggable, Droppable, DropResult} from '@hello-pangea/dnd';
 import {v4 as uuidv4} from 'uuid';
+import {useRecipe} from "../../../hooks/useRecipe";
 
 const RecipeForm: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -20,25 +21,20 @@ const RecipeForm: React.FC = () => {
         recipeInstructions: '',
         ingredients: [],
     });
-    const [loading, setLoading] = useState<boolean>(!!id);
+
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-    const [error, setError] = useState<boolean>(false);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const {
+        recipe: loadedRecipe = {recipeId: '', name: '', recipeYield: 1, recipeInstructions: '', ingredients: []},
+        loading,
+        error
+    } = useRecipe(id);
 
     useEffect(() => {
-        if (id) {
-            fetchRecipeById(id)
-                .then((data: Recipe) => {
-                    setRecipe(data);
-                    setLoading(false);
-                })
-                .catch((err) => {
-                    console.error(err);
-                    setError(true);
-                    setLoading(false);
-                });
+        if (loadedRecipe) {
+            setRecipe(loadedRecipe);
         }
-    }, [id]);
+    }, [loadedRecipe]);
 
     useEffect(() => {
         adjustTextareaHeight();
@@ -98,9 +94,8 @@ const RecipeForm: React.FC = () => {
         const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
         setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
-            ingredients: newIngredients.map((ingredient, i) => ({
+            ingredients: newIngredients.map((ingredient) => ({
                 ...ingredient,
-                position: i,
             })),
         }));
     };
@@ -108,19 +103,18 @@ const RecipeForm: React.FC = () => {
     const handleDragEnd = (result: DropResult) => {
         if (!result.destination) return;
 
+        console.log(result)
         const reorderedIngredients = Array.from(recipe.ingredients);
         const [movedIngredient] = reorderedIngredients.splice(result.source.index, 1);
         reorderedIngredients.splice(result.destination.index, 0, movedIngredient);
 
         setRecipe((prevRecipe: Recipe) => ({
             ...prevRecipe,
-            ingredients: reorderedIngredients.map((ingredient, index) => ({
+            ingredients: reorderedIngredients.map((ingredient) => ({
                 ...ingredient,
-                position: index,
             })),
         }));
 
-        console.log(recipe)
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -128,7 +122,14 @@ const RecipeForm: React.FC = () => {
         setIsSubmitting(true);
 
         try {
-            const savedRecipe: Recipe = await saveRecipe(recipe);
+            const ingredientsWithUpdatedPositions = recipe.ingredients.map((ingredient, index) => ({
+                ...ingredient,
+                position: index,
+            }));
+
+            const recipeToSave = {...recipe, ingredients: ingredientsWithUpdatedPositions};
+
+            const savedRecipe: Recipe = await saveRecipe(recipeToSave);
             navigate(`/recipe/${savedRecipe.recipeId}`);
         } catch (error) {
             console.error(error);
