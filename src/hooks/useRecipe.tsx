@@ -11,9 +11,10 @@ export const useRecipe = (id?: string) => {
         const loadRecipe = async () => {
             if (id) {
                 try {
-                    const data: Recipe = await fetchRecipeById(id);
-                    if (data) {
-                        setRecipe(data);
+                    const recipe: Recipe = await fetchRecipeById(id);
+                    if (recipe) {
+                        const sortedIngredients = [...recipe.ingredients].sort((a, b) => a.position - b.position);
+                        setRecipe({...recipe, ingredients: sortedIngredients});
                     } else {
                         setError(true);
                     }
@@ -23,10 +24,12 @@ export const useRecipe = (id?: string) => {
                 } finally {
                     setLoading(false);
                 }
+            } else {
+                setLoading(false);
             }
         };
         loadRecipe();
     }, [id]);
 
-    return {recipe, loading, error};
+    return {recipe, setRecipe, loading, error};
 };

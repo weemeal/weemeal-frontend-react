@@ -1,3 +1,5 @@
+import {Recipe} from "./types/recipe";
+
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL as string;
 
 export const fetchRecipes = async () => {
@@ -16,7 +18,7 @@ export const fetchRecipeById = async (id: string) => {
     return response.json();
 };
 
-export const saveRecipe = async (recipe: any) => {
+export const saveRecipe = async (recipe: Recipe) => {
     const response = await fetch(`${API_BASE_URL}/api/recipes/`, {
         method: 'POST',
         headers: {
