@@ -1,6 +1,6 @@
 ![GitHub Release](https://img.shields.io/github/v/release/weemeal/weemeal-frontend-react)
 
-# Weemeal App
+# Weemeal
 
 This is a React application that serves as a digital cookbook and connects with a [Spring Boot backend](https://github.com/weemeal/weemeal-backend-spring). This guide will help you set up and run the application locally.
 
