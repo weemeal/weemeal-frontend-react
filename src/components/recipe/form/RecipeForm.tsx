@@ -19,10 +19,14 @@ const RecipeForm: React.FC = () => {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
     useEffect(() => {
-        if (recipe) {
+        if (recipe?.recipeInstructions) {
             adjustTextareaHeight();
         }
-    }, [recipe]);
+    }, [recipe?.recipeInstructions]);
+
+    useEffect(() => {
+        window.scrollTo(0, 0)
+    }, [])
 
     const changePortion = (changeType: PortionChange) => {
         if (recipe) {
@@ -212,8 +216,8 @@ const RecipeForm: React.FC = () => {
                                 {(provided) => (
                                     <div {...provided.droppableProps} ref={provided.innerRef}>
                                         {recipe?.ingredients.map((ingredient: Ingredient, index: number) => (
-                                            <Draggable key={ingredient.ingredientId || index}
-                                                       draggableId={String(ingredient.ingredientId ?? ingredient.dragDummy)}
+                                            <Draggable key={ingredient.ingredientId || ingredient.dragDummy}
+                                                       draggableId={String(ingredient.ingredientId || ingredient.dragDummy)}
                                                        index={index}>
                                                 {(provided) => (
                                                     <div

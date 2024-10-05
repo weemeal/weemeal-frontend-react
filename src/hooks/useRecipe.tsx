@@ -13,7 +13,7 @@ export const useRecipe = (id?: string) => {
                 try {
                     const recipe: Recipe = await fetchRecipeById(id);
                     if (recipe) {
-                        const sortedIngredients = recipe.ingredients.sort((a, b) => a.position - b.position);
+                        const sortedIngredients = [...recipe.ingredients].sort((a, b) => a.position - b.position);
                         setRecipe({...recipe, ingredients: sortedIngredients});
                     } else {
                         setError(true);
