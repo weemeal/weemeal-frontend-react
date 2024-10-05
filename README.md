@@ -4,6 +4,11 @@
 
 This is a React application that serves as a digital cookbook and connects with a [Spring Boot backend](https://github.com/weemeal/weemeal-backend-spring). This guide will help you set up and run the application locally.
 
+![Bildschirmfoto 2024-10-05 um 11 02 46](https://github.com/user-attachments/assets/1d2992fd-8b9b-467a-9392-0998d0a7eb37)
+![Bildschirmfoto 2024-10-05 um 11 02 29](https://github.com/user-attachments/assets/26d1b057-c0a9-4a42-9b19-37b032838c62)
+![Bildschirmfoto 2024-10-05 um 11 02 05](https://github.com/user-attachments/assets/d36ad547-dbb3-4417-ab69-b90311268ff9)
+
+
 ## Requirements
 
 - Node.js (version 14.x or higher)
