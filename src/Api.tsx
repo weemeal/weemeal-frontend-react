@@ -2,23 +2,41 @@ import {Recipe} from "./types/recipe";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL as string;
 
-export const fetchRecipes = async () => {
+export const fetchRecipes = async (): Promise<Recipe[]> => {
     const response = await fetch(`${API_BASE_URL}/api/recipes/`);
     if (!response.ok) {
         throw new Error('Failed to fetch recipes');
     }
-    return response.json();
+    const data = await response.json();
+
+    return data.map((recipe: Recipe) => ({
+        ...recipe,
+
+        ingredientListContent: recipe.ingredientListContent.map((content: any) => ({
+            ...content,
+            contentType: content.contentType as 'INGREDIENT' | 'SECTION_CAPTION'
+        }))
+    }));
 };
 
-export const fetchRecipeById = async (id: string) => {
+export const fetchRecipeById = async (id: string): Promise<Recipe> => {
     const response = await fetch(`${API_BASE_URL}/api/recipes/${id}`);
     if (!response.ok) {
         throw new Error(`Failed to fetch recipe with id: ${id}`);
     }
-    return response.json();
+    const data = await response.json();
+
+    // Optional: Mapping-Funktion falls Backend-Rohdaten kommen
+    return {
+        ...data,
+        ingredientListContent: data.ingredientListContent.map((content: any) => ({
+            ...content,
+            contentType: content.contentType as 'INGREDIENT' | 'SECTION_CAPTION'
+        }))
+    };
 };
 
-export const saveRecipe = async (recipe: Recipe) => {
+export const saveRecipe = async (recipe: Recipe): Promise<Recipe> => {
     const response = await fetch(`${API_BASE_URL}/api/recipes/`, {
         method: 'POST',
         headers: {

@@ -55,13 +55,13 @@ label {
 
 input[type="text"],
 textarea {
-    width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
     box-sizing: border-box;
 }
+
 
 textarea {
     resize: none;
@@ -119,39 +119,57 @@ textarea:focus {
     display: flex;
     gap: 10px;
     margin-bottom: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
 }
 
-.ingredient-input input[type="text"] {
+.ingredient-input input[type="text"],
+.ingredient-input input[type="number"] {
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 8px;
     font-size: 16px;
     box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
 }
-
-.ingredient-amount-input {
-    flex-grow: 1.5;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
 
 .ingredient-input input[name="ingredientName"] {
-    flex-grow: 10;
+    flex: 7;
+    width: auto;
 }
 
 .ingredient-input input[name="amount"] {
-    flex-grow: 1;
+    flex: 1.5;
+    width: auto;
 }
 
 .ingredient-input input[name="unit"] {
-    flex-grow: 4;
+    flex: 1;
+    width: auto;
 }
 
-.add-ingredient-button {
+/*.section-caption {*/
+/*    display: block;*/
+/*    padding: 8px;*/
+/*    font-size: 18px;*/
+/*    color: #333;*/
+/*    border: 1px solid #ddd;*/
+/*    border-radius: 8px;*/
+/*    font-weight: bold;*/
+/*    text-align: left;*/
+/*    box-sizing: border-box;*/
+/*    margin-bottom: 10px;*/
+/*}*/
+
+textarea#recipeInstructions {
+    width: 100%;
+    resize: none;
+    min-height: 100px;
+}
+
+.add-ingredient-button,
+.add-section-button {
     background-color: #28a745;
     color: #fff;
     border: none;
@@ -160,15 +178,11 @@ textarea:focus {
     cursor: pointer;
     font-size: 16px;
     transition: background-color 0.3s;
+    margin-right: 10px;
 }
 
-@media (max-width: 768px) {
-    .ingredient-input {
-        flex-direction: column;
-    }
-}
-
-.add-ingredient-button:hover {
+.add-ingredient-button:hover,
+.add-section-button:hover {
     background-color: #218838;
 }
 
@@ -219,12 +233,6 @@ textarea:focus {
     height: 16px;
     animation: spin 0.6s linear infinite;
     display: inline-block;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 button:disabled {
