@@ -6,7 +6,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faGripLines, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {Recipe} from "../../../types/recipe";
 import {PortionChange} from "../../../types/portion-change";
-import {Ingredient} from "../../../types/ingredient";
+import {Ingredient, SectionCaption} from "../../../types/ingredient";
 import {DragDropContext, Draggable, Droppable, DropResult} from '@hello-pangea/dnd';
 import {v4 as uuidv4} from 'uuid';
 import {useRecipe} from "../../../hooks/useRecipe";
@@ -26,7 +26,7 @@ const RecipeForm: React.FC = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0)
-    }, [])
+    }, []);
 
     const changePortion = (changeType: PortionChange) => {
         if (recipe) {
@@ -48,16 +48,25 @@ const RecipeForm: React.FC = () => {
         }
     };
 
-    const handleIngredientChange = (index: number, field: string, value: string) => {
+    const handleContentChange = (index: number, field: string, value: string) => {
         if (recipe) {
-            const newIngredients = [...recipe.ingredients];
-            newIngredients[index] = {
-                ...newIngredients[index],
+            const newContent = [...recipe.ingredientListContent];
+            if (newContent[index].contentType === 'INGREDIENT') {
+                const ingredient = newContent[index] as Ingredient;
+                newContent[index] = {
+                    ...ingredient,
                 [field]: field === "amount" && value === "" ? "" : value,
             };
+            } else if (newContent[index].contentType === 'SECTION_CAPTION') {
+                const section = newContent[index] as SectionCaption;
+                newContent[index] = {
+                    ...section,
+                    [field]: value,
+                };
+            }
             setRecipe({
                 ...recipe,
-                ingredients: newIngredients,
+                ingredientListContent: newContent,
             });
         }
     };
@@ -66,27 +75,45 @@ const RecipeForm: React.FC = () => {
         if (recipe) {
             setRecipe({
                 ...recipe,
-                ingredients: [
-                    ...recipe.ingredients,
+                ingredientListContent: [
+                    ...recipe.ingredientListContent,
                     {
+                        contentId: uuidv4(),
                         ingredientName: '',
                         amount: '',
                         unit: '',
-                        position: recipe.ingredients.length,
-                        dragDummy: uuidv4(),
+                        position: recipe.ingredientListContent.length,
+                        contentType: 'INGREDIENT',
                     } as Ingredient,
                 ],
             });
         }
     };
 
-    const removeIngredient = (index: number) => {
+    const addSection = () => {
         if (recipe) {
-            const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
             setRecipe({
                 ...recipe,
-                ingredients: newIngredients.map((ingredient, i) => ({
-                    ...ingredient,
+                ingredientListContent: [
+                    ...recipe.ingredientListContent,
+                    {
+                        contentId: uuidv4(),
+                        sectionName: '',
+                        position: recipe.ingredientListContent.length,
+                        contentType: 'SECTION_CAPTION',
+                    } as SectionCaption,
+                ],
+            });
+        }
+    };
+
+    const removeContent = (index: number) => {
+        if (recipe) {
+            const newContent = recipe.ingredientListContent.filter((_, i) => i !== index);
+            setRecipe({
+                ...recipe,
+                ingredientListContent: newContent.map((content, i) => ({
+                    ...content,
                     position: i,
                 })),
             });
@@ -96,14 +123,14 @@ const RecipeForm: React.FC = () => {
     const handleDragEnd = (result: DropResult) => {
         if (!result.destination || !recipe) return;
 
-        const reorderedIngredients = Array.from(recipe.ingredients);
-        const [movedIngredient] = reorderedIngredients.splice(result.source.index, 1);
-        reorderedIngredients.splice(result.destination.index, 0, movedIngredient);
+        const reorderedContent = Array.from(recipe.ingredientListContent);
+        const [movedContent] = reorderedContent.splice(result.source.index, 1);
+        reorderedContent.splice(result.destination.index, 0, movedContent);
 
         setRecipe({
             ...recipe,
-            ingredients: reorderedIngredients.map((ingredient, index) => ({
-                ...ingredient,
+            ingredientListContent: reorderedContent.map((content, index) => ({
+                ...content,
                 position: index,
             })),
         });
@@ -116,12 +143,12 @@ const RecipeForm: React.FC = () => {
         if (!recipe) return;
 
         try {
-            const ingredientsWithUpdatedPositions = recipe.ingredients.map((ingredient, index) => ({
-                ...ingredient,
+            const contentWithUpdatedPositions = recipe.ingredientListContent.map((content, index) => ({
+                ...content,
                 position: index,
             }));
 
-            const recipeToSave = {...recipe, ingredients: ingredientsWithUpdatedPositions};
+            const recipeToSave = {...recipe, ingredientListContent: contentWithUpdatedPositions};
 
             const savedRecipe: Recipe = await saveRecipe(recipeToSave);
             navigate(`/recipe/${savedRecipe.recipeId}`);
@@ -209,15 +236,16 @@ const RecipeForm: React.FC = () => {
                             disabled={isSubmitting}
                         />
                     </div>
+
                     <div className="form-ingredients">
-                        <h2>Zutaten:</h2>
+                        <h2>Zutaten</h2>
                         <DragDropContext onDragEnd={handleDragEnd}>
-                            <Droppable droppableId="ingredients">
+                            <Droppable droppableId="content">
                                 {(provided) => (
                                     <div {...provided.droppableProps} ref={provided.innerRef}>
-                                        {recipe?.ingredients.map((ingredient: Ingredient, index: number) => (
-                                            <Draggable key={ingredient.ingredientId || ingredient.dragDummy}
-                                                       draggableId={String(ingredient.ingredientId || ingredient.dragDummy)}
+                                        {recipe?.ingredientListContent.map((content, index: number) => (
+                                            <Draggable key={content.contentId || index}
+                                                       draggableId={String(content.contentId || index)}
                                                        index={index}>
                                                 {(provided) => (
                                                     <div
@@ -228,36 +256,53 @@ const RecipeForm: React.FC = () => {
                                                         <span {...provided.dragHandleProps} className="drag-handle">
                                                             <FontAwesomeIcon icon={faGripLines}/>
                                                         </span>
+                                                        {content.contentType === 'INGREDIENT' && (
+                                                            <div>
                                                         <input
                                                             type="text"
-                                                            value={ingredient.ingredientName}
+                                                            value={(content as Ingredient).ingredientName}
                                                             name="ingredientName"
                                                             placeholder="Name"
-                                                            onChange={(e) => handleIngredientChange(index, 'ingredientName', e.target.value)}
+                                                            onChange={(e) => handleContentChange(index, 'ingredientName', e.target.value)}
                                                             required
                                                             disabled={isSubmitting}
                                                         />
                                                         <input
                                                             type="number"
                                                             className="ingredient-amount-input"
-                                                            value={ingredient.amount !== undefined ? String(ingredient.amount) : ""}
+                                                            value={(content as Ingredient).amount !== undefined ? String((content as Ingredient).amount) : ""}
                                                             name="amount"
                                                             placeholder="Menge (optional)"
-                                                            onChange={(e) => handleIngredientChange(index, 'amount', e.target.value)}
+                                                            onChange={(e) => handleContentChange(index, 'amount', e.target.value)}
                                                             disabled={isSubmitting}
                                                         />
                                                         <input
                                                             type="text"
-                                                            value={ingredient.unit || ''}
+                                                            value={(content as Ingredient).unit || ''}
                                                             name="unit"
                                                             placeholder="Einheit (optional)"
-                                                            onChange={(e) => handleIngredientChange(index, 'unit', e.target.value)}
+                                                            onChange={(e) => handleContentChange(index, 'unit', e.target.value)}
                                                             disabled={isSubmitting}
                                                         />
+                                                            </div>
+                                                        )}
+                                                        {content.contentType === 'SECTION_CAPTION' && (
+                                                            <div>
+                                                                <input
+                                                                    type="text"
+                                                                    value={(content as SectionCaption).sectionName}
+                                                                    name="sectionName"
+                                                                    placeholder="Sektion"
+                                                                    onChange={(e) => handleContentChange(index, 'sectionName', e.target.value)}
+                                                                    required
+                                                            disabled={isSubmitting}
+                                                        />
+                                                            </div>
+                                                        )}
                                                         <button
                                                             type="button"
                                                             className="delete-ingredient-button"
-                                                            onClick={() => removeIngredient(index)}
+                                                            onClick={() => removeContent(index)}
                                                             disabled={isSubmitting}
                                                         >
                                                             <FontAwesomeIcon icon={faTrash}/>
@@ -274,6 +319,10 @@ const RecipeForm: React.FC = () => {
                         <button type="button" className="add-ingredient-button" onClick={addIngredient}
                                 disabled={isSubmitting}>
                             Zutat hinzufügen
+                        </button>
+                        <button type="button" className="add-section-button" onClick={addSection}
+                                disabled={isSubmitting}>
+                            Sektion hinzufügen
                         </button>
                     </div>
                 </form>

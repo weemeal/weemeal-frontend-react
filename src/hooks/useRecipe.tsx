@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {fetchRecipeById} from '../Api';
 import {Recipe} from "../types/recipe";
+import {IngredientListContent} from "../types/ingredient";
 
 export const useRecipe = (id?: string) => {
     const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -13,8 +14,8 @@ export const useRecipe = (id?: string) => {
                 try {
                     const recipe: Recipe = await fetchRecipeById(id);
                     if (recipe) {
-                        const sortedIngredients = [...recipe.ingredients].sort((a, b) => a.position - b.position);
-                        setRecipe({...recipe, ingredients: sortedIngredients});
+                        const sortedContent: IngredientListContent[] = [...recipe.ingredientListContent].sort((a, b) => a.position - b.position);
+                        setRecipe({...recipe, ingredientListContent: sortedContent});
                     } else {
                         setError(true);
                     }

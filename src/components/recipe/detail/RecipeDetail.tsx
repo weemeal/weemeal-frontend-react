@@ -8,7 +8,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useRecipe} from "../../../hooks/useRecipe";
 import {generateBringUrl} from "../../../utils/generateBringUrl";
 import {useEffect, useState} from "react";
-import {Ingredient} from '../../../types/ingredient';
+import {Ingredient, IngredientListContent, SectionCaption} from '../../../types/ingredient';
 
 const RecipeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -18,17 +18,18 @@ const RecipeDetail: React.FC = () => {
 
     const {recipe, loading, error} = useRecipe(id);
     const [portion, setPortion] = useState<number>(recipe?.recipeYield || 1); // Aktuelle Portionsanzahl
-    const [adjustedIngredients, setAdjustedIngredients] = useState<Ingredient[]>([]); // Angepasste Zutatenliste
+    const [adjustedContent, setAdjustedContent] = useState<IngredientListContent[]>([]); // Angepasste Inhaltsliste
 
     useEffect(() => {
         if (recipe) {
+            console.log(recipe)
             const savedPortion = localStorage.getItem(`recipe-portion-${recipe.recipeId}`);
             if (savedPortion) {
                 setPortion(parseInt(savedPortion, 10));
             } else {
                 setPortion(recipe.recipeYield);
             }
-            setAdjustedIngredients(recipe.ingredients);
+            setAdjustedContent(recipe.ingredientListContent);
         }
     }, [recipe]);
 
@@ -41,13 +42,19 @@ const RecipeDetail: React.FC = () => {
     useEffect(() => {
         if (recipe) {
             const ratio = portion / recipe.recipeYield;
-            const updatedIngredients = recipe.ingredients.map((ingredient) => ({
+            const updatedContent = recipe.ingredientListContent.map((content) => {
+                if (content.contentType === 'INGREDIENT') {
+                    const ingredient = content as Ingredient;
+                    return {
                 ...ingredient,
                 amount: ingredient.amount !== undefined && ingredient.amount !== null
                     ? Math.round(parseFloat(String(ingredient.amount).replace(',', '.')) * ratio * 100) / 100
                     : '',
-            }));
-            setAdjustedIngredients(updatedIngredients);
+                    };
+                }
+                return content; // SectionCaption bleibt unverändert
+            });
+            setAdjustedContent(updatedContent);
         }
     }, [portion, recipe]);
 
@@ -121,11 +128,24 @@ const RecipeDetail: React.FC = () => {
                     <div className="recipe-ingredients">
                         <h2>Zutaten</h2>
                         <div className="ingredients-list">
-                            {adjustedIngredients.map((ingredient: Ingredient, index: number) => (
-                                <div key={ingredient.ingredientId || index} className="ingredient-card">
+                            {adjustedContent.map((content, index: number) => {
+                                if (content.contentType === 'SECTION_CAPTION') {
+                                    const section = content as SectionCaption;
+                                    return (
+                                        <div key={section.contentId || index} className="section-caption">
+                                            <strong>{section.sectionName}</strong>
+                                        </div>
+                                    );
+                                } else if (content.contentType === 'INGREDIENT') {
+                                    const ingredient = content as Ingredient;
+                                    return (
+                                        <div key={ingredient.contentId || index} className="ingredient-card">
                                     {`${ingredient.ingredientName} ${ingredient.amount} ${ingredient.unit}`}
                                 </div>
-                            ))}
+                                    );
+                                }
+                                return null;
+                            })}
                         </div>
                     </div>
                     <div className="recipe-instructions">
