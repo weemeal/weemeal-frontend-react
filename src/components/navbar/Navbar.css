@@ -1,8 +1,8 @@
 .navbar {
-    background-color: #388047;
+    background-color: var(--primary-color);
     display: flex;
     justify-content: center;
-    color: #fff;
+    color: var(--text-color-light);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -31,7 +31,7 @@
     align-items: center;
     font-size: 24px;
     font-weight: bold;
-    color: #fff;
+    color: var(--text-color-light);
     text-decoration: none;
 }
 
@@ -42,17 +42,13 @@
 }
 
 .navbar-link {
-    color: #fff;
+    color: var(--text-color-light);
     text-decoration: none;
     font-size: 18px;
     transition: color 0.3s;
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.navbar-link:hover {
-    color: #e0e0e0;
 }
 
 .navbar-link svg {

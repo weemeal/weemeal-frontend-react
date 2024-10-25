@@ -2,16 +2,16 @@
     max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #fff;
+    background-color: var(--background-color-white);
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow);
 }
 
 .recipe-form-title {
     text-align: center;
     font-family: 'Rubik', sans-serif;
     font-size: 28px;
-    color: #333;
+    color: var(--text-color-dark);
     margin-bottom: 20px;
 }
 
@@ -26,10 +26,20 @@
     margin-right: 10px;
 }
 
+/*TODO: das sollte nicht global alle Input-Felder überschreiben*/
 input[type="text"] {
     flex: 1;
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color-light);
+    border-radius: var(--card-border-radius);
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/*TODO: das sollte nicht global alle Input-Felder überschreiben*/
+input[type="text"], textarea {
+    padding: 8px;
+    border: 1px solid var(--border-color-light);
     border-radius: 8px;
     font-size: 16px;
     box-sizing: border-box;
@@ -39,7 +49,7 @@ h1 {
     text-align: center;
     font-family: 'Rubik', sans-serif;
     font-size: 28px;
-    color: #333;
+    color: var(--text-color-dark);
     margin-bottom: 20px;
 }
 
@@ -53,14 +63,6 @@ label {
     margin-bottom: 5px;
 }
 
-input[type="text"],
-textarea {
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
 
 
 textarea {
@@ -73,27 +75,6 @@ textarea {
 textarea:focus {
   outline: none;
     border-color: #007bff;
-}
-
-.portion-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.portion-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
-}
-
-.portion-button:hover {
-    background-color: #0056b3;
 }
 
 .form-content {
@@ -126,7 +107,7 @@ textarea:focus {
 .ingredient-input input[type="text"],
 .ingredient-input input[type="number"] {
     padding: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color-light);
     border-radius: 8px;
     font-size: 16px;
     box-sizing: border-box;
@@ -149,19 +130,6 @@ textarea:focus {
     width: auto;
 }
 
-/*.section-caption {*/
-/*    display: block;*/
-/*    padding: 8px;*/
-/*    font-size: 18px;*/
-/*    color: #333;*/
-/*    border: 1px solid #ddd;*/
-/*    border-radius: 8px;*/
-/*    font-weight: bold;*/
-/*    text-align: left;*/
-/*    box-sizing: border-box;*/
-/*    margin-bottom: 10px;*/
-/*}*/
-
 textarea#recipeInstructions {
     width: 100%;
     resize: none;
@@ -170,8 +138,8 @@ textarea#recipeInstructions {
 
 .add-ingredient-button,
 .add-section-button {
-    background-color: #28a745;
-    color: #fff;
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
     border: none;
     padding: 8px 12px;
     border-radius: 4px;
@@ -183,13 +151,13 @@ textarea#recipeInstructions {
 
 .add-ingredient-button:hover,
 .add-section-button:hover {
-    background-color: #218838;
+    background-color: var(--secondary-color-hover);
 }
 
 .save-button {
     width: 100%;
-    background-color: #007bff;
-    color: #fff;
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
     border: none;
     padding: 10px;
     border-radius: 8px;
@@ -200,7 +168,7 @@ textarea#recipeInstructions {
 }
 
 .save-button:hover {
-    background-color: #0056b3;
+    background-color: var(--secondary-color-hover);
 }
 
 .loading-spinner {
@@ -210,6 +178,7 @@ textarea#recipeInstructions {
     height: 200px;
 }
 
+/*TOdo: Spinner extra bauen*/
 .spinner {
     border: 4px solid rgba(0, 0, 0, 0.1);
     border-left-color: #000;
@@ -217,12 +186,6 @@ textarea#recipeInstructions {
     width: 50px;
     height: 50px;
     animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
 }
 
 .button-spinner {
@@ -235,14 +198,20 @@ textarea#recipeInstructions {
     display: inline-block;
 }
 
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
 
 .delete-ingredient-button {
-    background-color: #dc3545;
-    color: #fff; /* Textfarbe auf Weiß setzen */
+    background-color: var(--error-color);
+    color: var(--text-color-light);
     border: none;
     padding: 8px;
     border-radius: 4px;
@@ -255,7 +224,7 @@ button:disabled {
 }
 
 .delete-ingredient-button:hover {
-    background-color: #c82333;
+    background-color: var(--error-color-hover);
 }
 
 .delete-ingredient-button svg {
@@ -267,10 +236,10 @@ button:disabled {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: grab; /* Zeigt an, dass das Element verschoben werden kann */
+    cursor: grab;
     padding: 4px;
-    font-size: 18px; /* Symbolgröße anpassen */
-    color: #007bff;
+    font-size: 18px;
+    color: var(--secondary-color);
 }
 
 
