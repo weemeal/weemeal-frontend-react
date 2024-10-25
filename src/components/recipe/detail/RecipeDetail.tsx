@@ -1,7 +1,6 @@
 import {Link, useNavigate, useParams} from 'react-router-dom';
 import {deleteRecipe} from '../../../Api';
 import QRCode from 'qrcode.react';
-import {marked} from 'marked';
 import './RecipeDetail.css';
 import {faPen, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -9,10 +8,14 @@ import {useRecipe} from "../../../hooks/useRecipe";
 import {generateBringUrl} from "../../../utils/generateBringUrl";
 import {useEffect, useState} from "react";
 import {Ingredient, IngredientListContent, SectionCaption} from '../../../types/ingredient';
+import ContentItem from "../../react-components/ContentItem";
+import RecipeInstructions from "../../react-components/recipeInstructions/RecipeInstructions";
+import PortionControl from "../../react-components/portionControl/PortionControl";
+import {PortionChange} from "../../../types/portion-change";
 
 const RecipeDetail: React.FC = () => {
     const {id} = useParams<{ id: string }>();
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isQrCodeOpen, setIsQrCodeOpen] = useState<boolean>(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
     const navigate = useNavigate();
 
@@ -64,8 +67,8 @@ const RecipeDetail: React.FC = () => {
         }
     };
 
-    const toggleModal = () => {
-        setIsModalOpen(!isModalOpen);
+    const toggleQrCode = () => {
+        setIsQrCodeOpen(!isQrCodeOpen);
     };
 
     const openDeleteDialog = () => {
@@ -81,8 +84,12 @@ const RecipeDetail: React.FC = () => {
         closeDeleteDialog();
     };
 
-    const increasePortion = () => setPortion((prev) => prev + 1);
-    const decreasePortion = () => setPortion((prev) => (prev > 1 ? prev - 1 : 1));
+    const changePortion = (changeType: PortionChange) => {
+        if (recipe) {
+            const delta = changeType === PortionChange.INCREASE ? 1 : -1;
+            setPortion((prev) => prev + delta)
+        }
+    };
 
     if (loading) {
         return (
@@ -110,59 +117,41 @@ const RecipeDetail: React.FC = () => {
             <div className="recipe-card">
                 <div className="recipe-header">
                     <h1 className="recipe-name">{recipe.name}</h1>
-                    <div className="qr-code" onClick={toggleModal}>
+                    <div className="qr-code" onClick={toggleQrCode}>
                         <QRCode value={generateBringUrl(recipe, portion)} size={64}/>
                     </div>
                 </div>
                 <hr className="divider"/>
 
-                <div className="recipe-portions">
-                    <strong>Portionen:</strong>
-                    <button className="portion-button" onClick={decreasePortion}>-</button>
-                    <span>{portion}</span>
-                    <button className="portion-button" onClick={increasePortion}>+</button>
-                </div>
+                <PortionControl
+                    portion={portion}
+                    changePortion={changePortion}
+                />
 
                 <div className="recipe-content">
                     <div className="recipe-ingredients">
                         <h2>Zutaten</h2>
                         <div className="ingredients-list">
-                            {adjustedContent.map((content, index: number) => {
-                                if (content.contentType === 'SECTION_CAPTION') {
-                                    const section = content as SectionCaption;
-                                    return (
-                                        <div key={section.contentId || index} className="section-caption">
-                                            <strong>{section.sectionName}</strong>
-                                        </div>
-                                    );
-                                } else if (content.contentType === 'INGREDIENT') {
-                                    const ingredient = content as Ingredient;
-                                    return (
-                                        <div key={ingredient.contentId || index} className="ingredient-card">
-                                    {`${ingredient.ingredientName} ${ingredient.amount} ${ingredient.unit}`}
-                                </div>
-                                    );
-                                }
-                                return null;
-                            })}
+                            {adjustedContent.map((content, index) => (
+                                <ContentItem
+                                    key={content.contentId || index}
+                                    contentType={content.contentType}
+                                    ingredientName={(content as Ingredient).ingredientName}
+                                    amount={(content as Ingredient).amount}
+                                    unit={(content as Ingredient).unit}
+                                    sectionName={(content as SectionCaption).sectionName}
+                                />
+                            ))}
                         </div>
                     </div>
-                    <div className="recipe-instructions">
-                        <h2>Zubereitung</h2>
-                        <div
-                            className="instructions-content"
-                            dangerouslySetInnerHTML={{__html: marked(recipe.recipeInstructions) as string}}
-                        />
-                    </div>
+                    <RecipeInstructions instructions={recipe.recipeInstructions}/>
                 </div>
             </div>
 
-            {isModalOpen && (
-                <div className="modal" onClick={toggleModal}>
-                    <div className="modal-content">
-                        <QRCode value={generateBringUrl(recipe, portion)} size={256}/>
+            {isQrCodeOpen && (
+                <div className="modal-qr-code" onClick={toggleQrCode}>
+                    <QRCode className="qr-code-open" value={generateBringUrl(recipe, portion)} size={256}/>
                     </div>
-                </div>
             )}
 
             {isDeleteDialogOpen && (

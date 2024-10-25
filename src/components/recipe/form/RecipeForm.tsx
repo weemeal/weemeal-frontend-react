@@ -10,6 +10,7 @@ import {Ingredient, SectionCaption} from "../../../types/ingredient";
 import {DragDropContext, Draggable, Droppable, DropResult} from '@hello-pangea/dnd';
 import {v4 as uuidv4} from 'uuid';
 import {useRecipe} from "../../../hooks/useRecipe";
+import PortionControl from "../../react-components/portionControl/PortionControl";
 
 const RecipeForm: React.FC = () => {
     const {id} = useParams<{ id: string }>();
@@ -200,28 +201,10 @@ const RecipeForm: React.FC = () => {
                         />
                     </div>
 
-                    <div className="form-group-inline">
-                        <label htmlFor="recipeYield">Portionen:</label>
-                        <div className="portion-controls">
-                            <button
-                                type="button"
-                                className="portion-button"
-                                onClick={() => changePortion(PortionChange.DECREASE)}
-                                disabled={isSubmitting}
-                            >
-                                -
-                            </button>
-                            <span>{recipe?.recipeYield}</span>
-                            <button
-                                type="button"
-                                className="portion-button"
-                                onClick={() => changePortion(PortionChange.INCREASE)}
-                                disabled={isSubmitting}
-                            >
-                                +
-                            </button>
-                        </div>
-                    </div>
+                    <PortionControl
+                        portion={recipe?.recipeYield as number}
+                        changePortion={changePortion}
+                    />
 
                     <div className="form-instructions">
                         <h2>Anleitung (Markdown unterstützt):</h2>

@@ -12,8 +12,8 @@
 }
 
 .edit-button {
-    background-color: #007bff;
-    color: #fff;
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
     border: none;
     padding: 8px 12px;
     border-radius: 8px 8px 0 0;
@@ -28,12 +28,12 @@
 }
 
 .edit-button:hover {
-    background-color: #0056b3;
+    background-color: var(--secondary-color-hover);
 }
 
 .delete-button {
-    background-color: #dc3545;
-    color: #fff;
+    background-color: var(--error-color);
+    color: var(--text-color-light);
     border: none;
     padding: 8px 12px;
     border-radius: 8px 8px 0 0;
@@ -47,14 +47,13 @@
 }
 
 .delete-button:hover {
-    background-color: #c82333;
+    background-color: var(--error-color-hover);
 }
 
-/* Recipe card styling */
 .recipe-card {
-    background-color: #fff;
+    background-color: var(--background-color-white);
     border-radius: 0 0 12px 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow);
     padding: 20px;
 }
 
@@ -68,7 +67,7 @@
     font-family: 'Rubik', sans-serif;
     font-size: 32px;
     font-weight: bold;
-    color: #333;
+    color: var(--text-color-dark);
     margin: 0;
     text-align: left;
 }
@@ -79,14 +78,7 @@
     height: 64px;
 }
 
-.recipe-portions {
-    font-size: 18px;
-    color: #666;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+
 
 .recipe-content {
     display: flex;
@@ -97,30 +89,11 @@
     flex: 1;
 }
 
-.recipe-instructions {
-    flex: 4;
-}
-
 .recipe-ingredients h2,
-.recipe-instructions h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-}
+
 
 .ingredients-list {
-    display: block; /* Stellt sicher, dass alle Elemente nacheinander angeordnet werden */
-}
-
-
-.ingredient-card {
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 10px 15px;
-    font-size: 16px;
-    color: #333;
-    margin-bottom: 10px; /* Fügt etwas Platz zwischen den Zutaten hinzu */
-    text-align: left; /* Text linksbündig, wenn gewünscht */
+    display: block;
 }
 
 .instructions-content {
@@ -154,33 +127,30 @@
 
 .divider {
     border: none;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--primary-color);
     margin: 20px 0;
 }
 
 
-.modal {
+.modal-qr-code {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 10000;
     cursor: pointer;
 }
 
-.modal-content {
-    background: #fff;
+.qr-code-open {
+    background: var(--text-color-light);
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    box-shadow: 8px 8px 20px var(--primary-color);
 }
 
 .qr-code {
@@ -192,6 +162,7 @@
     transform: scale(1.1);
 }
 
+/*TODO das muss mit dem qr code modal nochmal angepasst werden*/
 .delete-dialog-overlay {
     position: fixed;
     top: 0;
@@ -206,12 +177,12 @@
 }
 
 .delete-dialog {
-    background: white;
+    background: var(--text-color-light);
     padding: 20px;
     border-radius: 10px;
     width: 300px;
     text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: var(--box-shadow);
 }
 
 .dialog-actions {
@@ -221,8 +192,8 @@
 }
 
 .confirm-button {
-    background-color: #dc3545;
-    color: white;
+    background-color: var(--error-color);
+    color: var(--text-color-light);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
@@ -230,12 +201,12 @@
 }
 
 .confirm-button:hover {
-    background-color: #c82333;
+    background-color: var(--error-color-hover);
 }
 
 .cancel-button {
-    background-color: #6c757d;
-    color: white;
+    background-color: var(--secondary-color);
+    color: var(--text-color-light);
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
@@ -243,16 +214,27 @@
 }
 
 .cancel-button:hover {
-    background-color: #5a6268;
+    background-color: var(--secondary-color-hover);
 }
 
-.section-caption {
+/*WebComponent*/
+.content-item .section-caption {
     width: 100%;
     font-size: 14px;
-    color: #333;
+    color: var(--text-color-dark);
     margin: 20px 0 10px 0;
     text-align: center;
     font-weight: bold;
     display: block;
 }
 
+.content-item .ingredient {
+    background-color: var(--background-color);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    padding: 10px 15px;
+    font-size: 16px;
+    color: var(--text-color-dark);
+    margin-bottom: 10px;
+    text-align: left;
+}
