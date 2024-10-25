@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {fetchRecipeById} from '../Api';
 import {Recipe} from "../types/recipe";
 import {IngredientListContent} from "../types/ingredient";
+import {v4 as uuidv4} from 'uuid';
 
 export const useRecipe = (id?: string) => {
     const [recipe, setRecipe] = useState<Recipe | null>(null);
@@ -26,6 +27,13 @@ export const useRecipe = (id?: string) => {
                     setLoading(false);
                 }
             } else {
+                setRecipe({
+                    recipeId: uuidv4(),
+                    name: '',
+                    recipeYield: 1,
+                    recipeInstructions: '',
+                    ingredientListContent: [],
+                });
                 setLoading(false);
             }
         };

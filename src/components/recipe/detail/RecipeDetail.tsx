@@ -22,7 +22,6 @@ const RecipeDetail: React.FC = () => {
 
     useEffect(() => {
         if (recipe) {
-            console.log(recipe)
             const savedPortion = localStorage.getItem(`recipe-portion-${recipe.recipeId}`);
             if (savedPortion) {
                 setPortion(parseInt(savedPortion, 10));
