@@ -56,8 +56,8 @@ const RecipeForm: React.FC = () => {
                 const ingredient = newContent[index] as Ingredient;
                 newContent[index] = {
                     ...ingredient,
-                [field]: field === "amount" && value === "" ? "" : value,
-            };
+                    [field]: field === "amount" && value === "" ? "" : value,
+                };
             } else if (newContent[index].contentType === 'SECTION_CAPTION') {
                 const section = newContent[index] as SectionCaption;
                 newContent[index] = {
@@ -241,32 +241,33 @@ const RecipeForm: React.FC = () => {
                                                         </span>
                                                         {content.contentType === 'INGREDIENT' && (
                                                             <div>
-                                                        <input
-                                                            type="text"
-                                                            value={(content as Ingredient).ingredientName}
-                                                            name="ingredientName"
-                                                            placeholder="Name"
-                                                            onChange={(e) => handleContentChange(index, 'ingredientName', e.target.value)}
-                                                            required
-                                                            disabled={isSubmitting}
-                                                        />
-                                                        <input
-                                                            type="number"
-                                                            className="ingredient-amount-input"
-                                                            value={(content as Ingredient).amount !== undefined ? String((content as Ingredient).amount) : ""}
-                                                            name="amount"
-                                                            placeholder="Menge (optional)"
-                                                            onChange={(e) => handleContentChange(index, 'amount', e.target.value)}
-                                                            disabled={isSubmitting}
-                                                        />
-                                                        <input
-                                                            type="text"
-                                                            value={(content as Ingredient).unit || ''}
-                                                            name="unit"
-                                                            placeholder="Einheit (optional)"
-                                                            onChange={(e) => handleContentChange(index, 'unit', e.target.value)}
-                                                            disabled={isSubmitting}
-                                                        />
+                                                                <input
+                                                                    type="text"
+                                                                    value={(content as Ingredient).ingredientName}
+                                                                    name="ingredientName"
+                                                                    placeholder="Name"
+                                                                    onChange={(e) => handleContentChange(index, 'ingredientName', e.target.value)}
+                                                                    required
+                                                                    disabled={isSubmitting}
+                                                                    autoComplete="new-password"
+                                                                />
+                                                                <input
+                                                                    type="number"
+                                                                    className="ingredient-amount-input"
+                                                                    value={(content as Ingredient).amount !== undefined ? String((content as Ingredient).amount) : ""}
+                                                                    name="amount"
+                                                                    placeholder="Menge (optional)"
+                                                                    onChange={(e) => handleContentChange(index, 'amount', e.target.value)}
+                                                                    disabled={isSubmitting}
+                                                                />
+                                                                <input
+                                                                    type="text"
+                                                                    value={(content as Ingredient).unit || ''}
+                                                                    name="unit"
+                                                                    placeholder="Einheit (optional)"
+                                                                    onChange={(e) => handleContentChange(index, 'unit', e.target.value)}
+                                                                    disabled={isSubmitting}
+                                                                />
                                                             </div>
                                                         )}
                                                         {content.contentType === 'SECTION_CAPTION' && (
@@ -278,8 +279,8 @@ const RecipeForm: React.FC = () => {
                                                                     placeholder="Sektion"
                                                                     onChange={(e) => handleContentChange(index, 'sectionName', e.target.value)}
                                                                     required
-                                                            disabled={isSubmitting}
-                                                        />
+                                                                    disabled={isSubmitting}
+                                                                />
                                                             </div>
                                                         )}
                                                         <button
