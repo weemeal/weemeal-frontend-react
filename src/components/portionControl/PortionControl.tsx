@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './PortionControl.module.css';
-import {PortionChange} from "../../../types/portion-change";
+import {PortionChange} from "../../types/portion-change";
 
 interface PortionControlProps {
     portion: number;
