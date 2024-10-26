@@ -8,9 +8,9 @@ import {useRecipe} from "../../../hooks/useRecipe";
 import {generateBringUrl} from "../../../utils/generateBringUrl";
 import {useEffect, useState} from "react";
 import {Ingredient, IngredientListContent, SectionCaption} from '../../../types/ingredient';
-import ContentItem from "../../react-components/ContentItem";
-import RecipeInstructions from "../../react-components/recipeInstructions/RecipeInstructions";
-import PortionControl from "../../react-components/portionControl/PortionControl";
+import ContentItem from "../../ContentItem";
+import RecipeInstructions from "./recipeInstructions/RecipeInstructions";
+import PortionControl from "../../portionControl/PortionControl";
 import {PortionChange} from "../../../types/portion-change";
 
 const RecipeDetail: React.FC = () => {

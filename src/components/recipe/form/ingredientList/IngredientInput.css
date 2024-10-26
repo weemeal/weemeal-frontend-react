@@ -1,0 +1,56 @@
+.ingredient-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.ingredient-input input[type="text"],
+.ingredient-input input[type="number"] {
+    padding: 8px;
+    border: 1px solid var(--border-color-light);
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    flex: 1;
+    min-width: 0;
+}
+
+.ingredient-input input[name="ingredientName"] {
+    flex: 7;
+    width: auto;
+}
+
+.ingredient-input input[name="amount"] {
+    flex: 1.5;
+    width: auto;
+}
+
+.ingredient-input input[name="unit"] {
+    flex: 1;
+    width: auto;
+}
+
+.delete-ingredient-button {
+    background-color: var(--error-color);
+    color: var(--text-color-light);
+    border: none;
+    padding: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-ingredient-button:hover {
+    background-color: var(--error-color-hover);
+}
+
+.delete-ingredient-button svg {
+    width: 16px;
+    height: 16px;
+}
