@@ -5,7 +5,8 @@ import './RecipeDetail.css';
 import {faPen, faTrash} from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {useRecipe} from "../../../hooks/useRecipe";
-import {generateBringUrl} from "../../../utils/generateBringUrl";
+import {useBringDeeplink} from "../../../hooks/useBringDeeplink";
+// import {getBringDeeplink} from "../../../utils/generateBringUrl";
 import {useEffect, useState} from "react";
 import {Ingredient, IngredientListContent, SectionCaption} from '../../../types/ingredient';
 import ContentItem from "../../react-components/ContentItem";
@@ -22,6 +23,7 @@ const RecipeDetail: React.FC = () => {
     const {recipe, loading, error} = useRecipe(id);
     const [portion, setPortion] = useState<number>(recipe?.recipeYield || 1); // Aktuelle Portionsanzahl
     const [adjustedContent, setAdjustedContent] = useState<IngredientListContent[]>([]); // Angepasste Inhaltsliste
+    const {deeplinkUrl} = useBringDeeplink(id);
 
     useEffect(() => {
         if (recipe) {
@@ -118,7 +120,7 @@ const RecipeDetail: React.FC = () => {
                 <div className="recipe-header">
                     <h1 className="recipe-name">{recipe.name}</h1>
                     <div className="qr-code" onClick={toggleQrCode}>
-                        <QRCode value={generateBringUrl(recipe, portion)} size={64}/>
+                        <QRCode value={deeplinkUrl} size={64}/>
                     </div>
                 </div>
                 <hr className="divider"/>
@@ -150,7 +152,7 @@ const RecipeDetail: React.FC = () => {
 
             {isQrCodeOpen && (
                 <div className="modal-qr-code" onClick={toggleQrCode}>
-                    <QRCode className="qr-code-open" value={generateBringUrl(recipe, portion)} size={256}/>
+                    <QRCode className="qr-code-open" value={deeplinkUrl} size={256}/>
                     </div>
             )}
 

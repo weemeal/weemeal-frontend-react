@@ -5,8 +5,26 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faPlus} from '@fortawesome/free-solid-svg-icons';
 import QRCode from 'qrcode.react';
 import './RecipeList.css';
-import {generateBringUrl} from "../../../utils/generateBringUrl";
+import {useBringDeeplink} from "../../../hooks/useBringDeeplink";
 import {Recipe} from "../../../types/recipe";
+
+interface RecipeCardProps {
+    recipe: Recipe;
+    onClick: () => void;
+}
+
+const RecipeCard: React.FC<RecipeCardProps> = ({recipe, onClick}) => {
+    const {deeplinkUrl} = useBringDeeplink(recipe.recipeId);
+
+    return (
+        <div className="card" onClick={onClick}>
+            <div className="recipe-name">{recipe.name}</div>
+            <div className="qr-code">
+                <QRCode value={deeplinkUrl} size={64}/>
+            </div>
+        </div>
+    );
+};
 
 const RecipeList: React.FC = () => {
     const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -60,12 +78,8 @@ const RecipeList: React.FC = () => {
             ) : (
                 <div className="recipe-list">
                     {filteredRecipes.map((recipe: Recipe) => (
-                        <div className="card" key={recipe.recipeId} onClick={() => handleCardClick(recipe.recipeId)}>
-                            <div className="recipe-name">{recipe.name}</div>
-                            <div className="qr-code">
-                                <QRCode value={generateBringUrl(recipe)} size={64}/>
-                            </div>
-                        </div>
+                        <RecipeCard key={recipe.recipeId} recipe={recipe}
+                                    onClick={() => handleCardClick(recipe.recipeId)}/>
                     ))}
                 </div>
             )}
