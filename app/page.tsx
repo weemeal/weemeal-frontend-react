@@ -1,0 +1,168 @@
+'use client';
+
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import Link from 'next/link';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faBookOpen, faPlus, faSearch} from '@fortawesome/free-solid-svg-icons';
+import {RecipeResponse} from '@/types/recipe';
+import RecipeGrid from '@/components/recipe/RecipeGrid';
+import RecipeSearchBar from '@/components/recipe/RecipeSearchBar';
+
+export default function HomePage() {
+    const [recipes, setRecipes] = useState<RecipeResponse[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const hasFetchedOnce = useRef(false);
+
+    const fetchRecipes = useCallback(async (showLoading = true) => {
+        try {
+            if (showLoading) setIsLoading(true);
+            const response = await fetch('/api/recipes', {
+                cache: 'no-store',
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch recipes');
+            }
+            const data = await response.json();
+            setRecipes(data);
+            setError(null);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    // Initial fetch
+    useEffect(() => {
+        fetchRecipes();
+        hasFetchedOnce.current = true;
+    }, [fetchRecipes]);
+
+    // Re-fetch when page becomes visible (user navigates back)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible' && hasFetchedOnce.current) {
+                fetchRecipes(false); // Don't show loading spinner for background refresh
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [fetchRecipes]);
+
+    const handleSearch = useCallback((query: string) => {
+        setSearchQuery(query);
+    }, []);
+
+    const filteredRecipes = useMemo(() => {
+        if (!searchQuery.trim()) {
+            return recipes;
+        }
+        const lowerQuery = searchQuery.toLowerCase();
+        return recipes.filter((recipe) => {
+            // Search in name
+            if (recipe.name.toLowerCase().includes(lowerQuery)) {
+                return true;
+            }
+            // Search in tags
+            if (recipe.tags?.some(tag => tag.toLowerCase().includes(lowerQuery))) {
+                return true;
+            }
+            return false;
+        });
+    }, [recipes, searchQuery]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <div className="spinner"/>
+                <p className="text-text-muted text-sm animate-pulse-subtle">Rezepte werden geladen...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="empty-state">
+                <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center mb-4">
+                    <span className="text-2xl">!</span>
+                </div>
+                <h2 className="empty-state-title">Etwas ist schiefgelaufen</h2>
+                <p className="empty-state-description">Fehler: {error}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="btn btn-primary"
+                >
+                    Erneut versuchen
+                </button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-8">
+            {/* Hero Section */}
+            <div
+                className="relative overflow-hidden bg-gradient-to-br from-primary-subtle from-10% via-white via-50% to-secondary-subtle rounded-3xl p-8 md:p-12 shadow-lg shadow-black/5">
+                {/* Decorative elements - green top left */}
+                <div
+                    className="absolute top-0 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -translate-y-1/3 -translate-x-1/3"/>
+                {/* Orange bottom right */}
+                <div
+                    className="absolute bottom-0 right-0 w-48 h-48 bg-secondary/20 rounded-full blur-3xl translate-y-1/4 translate-x-1/4"/>
+
+                <div
+                    className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <FontAwesomeIcon icon={faBookOpen} className="w-4 h-4 text-primary"/>
+                            </div>
+                            <span className="text-sm font-medium text-primary">Rezeptsammlung</span>
+                        </div>
+                        <h1 className="text-3xl md:text-4xl font-bold text-text-dark tracking-tight">
+                            Meine Rezepte
+                        </h1>
+                        <p className="text-text-muted max-w-md">
+                            {recipes.length === 0
+                                ? 'Starte deine Rezeptsammlung und speichere deine Lieblingsgerichte.'
+                                : `${recipes.length} Rezept${recipes.length !== 1 ? 'e' : ''} in deiner Sammlung`
+                            }
+                        </p>
+                    </div>
+
+                    <Link href="/recipe/new" className="btn btn-primary shadow-lg">
+                        <FontAwesomeIcon icon={faPlus} className="w-4 h-4"/>
+                        Neues Rezept
+                    </Link>
+                </div>
+            </div>
+
+            {/* Search & Filter Section */}
+            {recipes.length > 0 && (
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                    <div className="flex-1 max-w-lg">
+                        <RecipeSearchBar onSearch={handleSearch}/>
+                    </div>
+
+                    {searchQuery && (
+                        <div className="flex items-center gap-2 text-sm text-text-muted">
+                            <FontAwesomeIcon icon={faSearch} className="w-3.5 h-3.5"/>
+                            <span>
+                                {filteredRecipes.length} Ergebnis{filteredRecipes.length !== 1 ? 'se' : ''}
+                                {' '}fuer &quot;{searchQuery}&quot;
+                            </span>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Recipe Grid */}
+            <RecipeGrid recipes={filteredRecipes}/>
+        </div>
+    );
+}
