@@ -4,16 +4,16 @@
 
 A modern recipe management application with shopping list integration.
 
-![Bildschirmfoto 2024-10-25 um 22 32 21](https://github.com/user-attachments/assets/2d6eb12a-c5f8-4816-bbbc-616827c04eb5)
-![Bildschirmfoto 2024-10-25 um 22 32 40](https://github.com/user-attachments/assets/030580b8-d05f-49bc-b745-5f810a1d92d6)
-![Bildschirmfoto 2024-10-25 um 22 32 50](https://github.com/user-attachments/assets/c13eee11-45bc-4c02-bf11-567b43841a37)
+<!-- TODO: Add new screenshots -->
+> **Screenshots coming soon** - The UI has been redesigned. New screenshots will be added shortly.
 
 ## Tech Stack
 
-- **Framework**: Next.js 14+ (App Router)
+- **Framework**: Next.js 16+ (App Router, Turbopack)
 - **Database**: MongoDB (Mongoose ODM)
 - **Authentication**: NextAuth.js v4 with Keycloak
 - **Styling**: Tailwind CSS
+- **Drag & Drop**: @hello-pangea/dnd
 - **Testing**: Vitest + Testing Library
 - **Language**: TypeScript
 
@@ -21,10 +21,15 @@ A modern recipe management application with shopping list integration.
 
 - Recipe CRUD operations
 - Drag & drop ingredient reordering
+- Section headers for ingredient grouping
 - Portion scaling with localStorage persistence
 - QR code generation for Bring! shopping list integration
 - Markdown support for recipe instructions
-- Search functionality
+- Recipe notes with auto-save
+- Source attribution (book with page or URL)
+- Tags with AI-powered generation
+- Image upload or AI-powered image search
+- Full-text search functionality
 - Responsive design
 
 ## Requirements
@@ -109,7 +114,7 @@ npm run docker:reset  # Stop and remove volumes
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes
 │   │   ├── auth/         # NextAuth endpoints
-│   │   └── recipes/      # Recipe CRUD + Bring HTML
+│   │   └── recipes/      # Recipe CRUD + extensions
 │   ├── recipe/           # Recipe pages
 │   └── page.tsx          # Home page
 ├── components/            # React components
@@ -130,14 +135,18 @@ npm run docker:reset  # Stop and remove volumes
 
 ## API Endpoints
 
-| Method | Endpoint                  | Description                    |
-|--------|---------------------------|--------------------------------|
-| GET    | `/api/recipes`            | Get all recipes                |
-| POST   | `/api/recipes`            | Create a new recipe            |
-| GET    | `/api/recipes/[id]`       | Get a single recipe            |
-| PUT    | `/api/recipes/[id]`       | Update a recipe                |
-| DELETE | `/api/recipes/[id]`       | Delete a recipe                |
-| GET    | `/api/recipes/bring/[id]` | Get Schema.org HTML for Bring! |
+| Method | Endpoint                     | Description                    |
+|--------|------------------------------|--------------------------------|
+| GET    | `/api/recipes`               | Get all recipes (with search)  |
+| POST   | `/api/recipes`               | Create a new recipe            |
+| GET    | `/api/recipes/[id]`          | Get a single recipe            |
+| PUT    | `/api/recipes/[id]`          | Update a recipe                |
+| DELETE | `/api/recipes/[id]`          | Delete a recipe                |
+| PATCH  | `/api/recipes/[id]/notes`    | Update recipe notes            |
+| PATCH  | `/api/recipes/[id]/source`   | Update recipe source           |
+| GET    | `/api/recipes/[id]/image`    | Generate/fetch recipe image    |
+| POST   | `/api/recipes/generate-tags` | Generate tags with AI          |
+| GET    | `/api/recipes/bring/[id]`    | Get Schema.org HTML for Bring! |
 
 ## Data Migration
 
