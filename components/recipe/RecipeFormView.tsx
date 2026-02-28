@@ -679,7 +679,7 @@ export default function RecipeFormView({
                                             <div
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
-                                                className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                                                className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-colors transition-shadow ${
                                                     snapshot.isDragging
                                                         ? 'bg-white shadow-lg border-primary'
                                                         : content.contentType === 'SECTION_CAPTION'
