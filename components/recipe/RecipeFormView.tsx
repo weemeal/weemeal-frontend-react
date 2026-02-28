@@ -9,6 +9,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
     faArrowLeft,
     faCarrot,
+    faCloudUploadAlt,
     faGripVertical,
     faImage,
     faLayerGroup,
@@ -21,10 +22,12 @@ import {
     faTimes,
     faTrash,
     faUtensils,
+    faWandMagicSparkles,
 } from '@fortawesome/free-solid-svg-icons';
 import {v4 as uuidv4} from 'uuid';
 import {IngredientListContent, RecipeResponse} from '@/types/recipe';
 import PortionControl from '@/components/ui/PortionControl';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 interface RecipeFormViewProps {
     recipe?: RecipeResponse;
@@ -50,6 +53,7 @@ export default function RecipeFormView({
     const [imageUrl, setImageUrl] = useState(recipe?.imageUrl || '');
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [imageSearchTerm, setImageSearchTerm] = useState('');
+    const [imageMode, setImageMode] = useState<'upload' | 'generate'>('upload');
     const [tags, setTags] = useState<string[]>(recipe?.tags || []);
     const [newTag, setNewTag] = useState('');
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
@@ -499,94 +503,134 @@ export default function RecipeFormView({
                     <div>
                         <h2 className="text-lg font-semibold text-text-dark">Rezeptbild</h2>
                         <p className="text-sm text-text-muted">
-                            Generiere ein Bild fuer dein Rezept
+                            Lade ein eigenes Bild hoch oder generiere eins automatisch
                         </p>
                     </div>
                 </div>
 
-                {/* Image Preview */}
-                <div
-                    className={`relative h-48 md:h-64 rounded-2xl overflow-hidden mb-4 bg-gradient-to-br ${placeholderColor.bg}`}>
-                    {imageUrl ? (
-                        imageUrl.startsWith('data:') ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                                src={imageUrl}
-                                alt={name || 'Rezeptbild'}
-                                className="absolute inset-0 w-full h-full object-cover"
-                            />
-                        ) : (
-                            <Image
-                                src={imageUrl}
-                                alt={name || 'Rezeptbild'}
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 800px"
-                            />
-                        )
-                    ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <div
-                                className="w-20 h-20 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center mb-4">
-                                <FontAwesomeIcon
-                                    icon={faImage}
-                                    className={`w-10 h-10 ${placeholderColor.icon}`}
-                                />
-                            </div>
-                            <p className="text-sm text-gray-500">Noch kein Bild vorhanden</p>
-                        </div>
-                    )}
-                </div>
-
-                {/* Custom Search Term */}
-                <div className="mb-4">
-                    <label htmlFor="imageSearch" className="block text-sm font-medium text-text-dark mb-2">
-                        Suchbegriff fuer Bild <span className="text-text-muted font-normal">(optional)</span>
-                    </label>
-                    <input
-                        id="imageSearch"
-                        type="text"
-                        value={imageSearchTerm}
-                        onChange={(e) => setImageSearchTerm(e.target.value)}
-                        className="input"
-                        placeholder={`Leer = "${name || 'Rezeptname'}" + Zutaten`}
-                    />
-                    <p className="text-xs text-text-muted mt-1">
-                        Leer lassen fuer automatische Suche nach Rezeptname und Hauptzutaten
-                    </p>
-                </div>
-
-                {/* Generate Button */}
-                <div className="flex flex-wrap items-center gap-3">
+                {/* Image Mode Tabs */}
+                <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-xl">
                     <button
                         type="button"
-                        onClick={handleGenerateImage}
-                        disabled={isGeneratingImage || !name.trim()}
-                        className="btn btn-outline"
+                        onClick={() => setImageMode('upload')}
+                        className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                            imageMode === 'upload'
+                                ? 'bg-white text-primary shadow-sm'
+                                : 'text-gray-600 hover:text-gray-800'
+                        }`}
                     >
-                        {isGeneratingImage ? (
-                            <>
-                                <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin"/>
-                                Generiere...
-                            </>
-                        ) : (
-                            <>
-                                <FontAwesomeIcon icon={imageUrl ? faRefresh : faImage} className="w-4 h-4"/>
-                                {imageUrl ? 'Neues Bild generieren' : 'Bild generieren'}
-                            </>
-                        )}
+                        <FontAwesomeIcon icon={faCloudUploadAlt} className="w-4 h-4"/>
+                        Hochladen
                     </button>
-                    {imageUrl && (
-                        <button
-                            type="button"
-                            onClick={() => setImageUrl('')}
-                            className="btn btn-ghost text-error"
-                        >
-                            <FontAwesomeIcon icon={faTrash} className="w-4 h-4"/>
-                            Bild entfernen
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        onClick={() => setImageMode('generate')}
+                        className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                            imageMode === 'generate'
+                                ? 'bg-white text-primary shadow-sm'
+                                : 'text-gray-600 hover:text-gray-800'
+                        }`}
+                    >
+                        <FontAwesomeIcon icon={faWandMagicSparkles} className="w-4 h-4"/>
+                        Generieren
+                    </button>
                 </div>
+
+                {imageMode === 'upload' ? (
+                    /* Upload Mode */
+                    <ImageUpload
+                        value={imageUrl}
+                        onChange={(url) => setImageUrl(url || '')}
+                        recipeName={name}
+                    />
+                ) : (
+                    /* Generate Mode */
+                    <>
+                        {/* Image Preview */}
+                        <div
+                            className={`relative h-48 md:h-64 rounded-2xl overflow-hidden mb-4 bg-gradient-to-br ${placeholderColor.bg}`}>
+                            {imageUrl ? (
+                                imageUrl.startsWith('data:') ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                        src={imageUrl}
+                                        alt={name || 'Rezeptbild'}
+                                        className="absolute inset-0 w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <Image
+                                        src={imageUrl}
+                                        alt={name || 'Rezeptbild'}
+                                        fill
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, 800px"
+                                    />
+                                )
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                    <div
+                                        className="w-20 h-20 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center mb-4">
+                                        <FontAwesomeIcon
+                                            icon={faImage}
+                                            className={`w-10 h-10 ${placeholderColor.icon}`}
+                                        />
+                                    </div>
+                                    <p className="text-sm text-gray-500">Noch kein Bild vorhanden</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Custom Search Term */}
+                        <div className="mb-4">
+                            <label htmlFor="imageSearch" className="block text-sm font-medium text-text-dark mb-2">
+                                Suchbegriff fuer Bild <span className="text-text-muted font-normal">(optional)</span>
+                            </label>
+                            <input
+                                id="imageSearch"
+                                type="text"
+                                value={imageSearchTerm}
+                                onChange={(e) => setImageSearchTerm(e.target.value)}
+                                className="input"
+                                placeholder={`Leer = "${name || 'Rezeptname'}" + Zutaten`}
+                            />
+                            <p className="text-xs text-text-muted mt-1">
+                                Leer lassen fuer automatische Suche nach Rezeptname und Hauptzutaten
+                            </p>
+                        </div>
+
+                        {/* Generate Button */}
+                        <div className="flex flex-wrap items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={handleGenerateImage}
+                                disabled={isGeneratingImage || !name.trim()}
+                                className="btn btn-outline"
+                            >
+                                {isGeneratingImage ? (
+                                    <>
+                                        <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin"/>
+                                        Generiere...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FontAwesomeIcon icon={imageUrl ? faRefresh : faImage} className="w-4 h-4"/>
+                                        {imageUrl ? 'Neues Bild generieren' : 'Bild generieren'}
+                                    </>
+                                )}
+                            </button>
+                            {imageUrl && (
+                                <button
+                                    type="button"
+                                    onClick={() => setImageUrl('')}
+                                    className="btn btn-ghost text-error"
+                                >
+                                    <FontAwesomeIcon icon={faTrash} className="w-4 h-4"/>
+                                    Bild entfernen
+                                </button>
+                            )}
+                        </div>
+                    </>
+                )}
 
                 {errors.image && (
                     <p className="text-error text-sm mt-3 flex items-center gap-1">
