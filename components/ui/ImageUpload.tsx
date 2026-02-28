@@ -1,8 +1,6 @@
 'use client';
 
 import {useCallback, useEffect, useRef, useState} from 'react';
-import imageCompression from 'browser-image-compression';
-import heic2any from 'heic2any';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
     faCamera,
@@ -44,9 +42,10 @@ const isHeicFormat = (file: File): boolean => {
     );
 };
 
-// Convert HEIC/HEIF to JPEG
+// Convert HEIC/HEIF to JPEG (dynamically imports heic2any)
 const convertHeicToJpeg = async (file: File): Promise<File> => {
     try {
+        const heic2any = (await import('heic2any')).default;
         const convertedBlob = await heic2any({
             blob: file,
             toType: 'image/jpeg',
@@ -166,7 +165,7 @@ export default function ImageUpload({
         });
     }, []);
 
-    // Compress image
+    // Compress image (dynamically imports browser-image-compression)
     const compressImage = useCallback(async (file: File): Promise<File> => {
         const options = {
             maxSizeMB: isMobile() ? 0.5 : CONFIG.maxCompressedSizeMB,
@@ -180,6 +179,7 @@ export default function ImageUpload({
         };
 
         try {
+            const imageCompression = (await import('browser-image-compression')).default;
             return await imageCompression(file, options);
         } catch {
             // Fallback: return original if compression fails
