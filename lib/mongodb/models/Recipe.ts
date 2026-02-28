@@ -25,6 +25,7 @@ export interface IRecipe {
     ingredientListContent: IIngredientListContent[];
     imageUrl?: string;
     tags?: string[];
+    notes?: string;
     userId?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -82,6 +83,10 @@ const RecipeSchema = new Schema<IRecipeDocument>(
             type: [String],
             default: [],
             index: true,
+        },
+        notes: {
+            type: String,
+            default: '',
         },
         userId: {
             type: String,

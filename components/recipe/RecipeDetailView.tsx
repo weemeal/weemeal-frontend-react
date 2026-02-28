@@ -22,6 +22,7 @@ import ContentItem from '@/components/ui/ContentItem';
 import RecipeInstructions from '@/components/ui/RecipeInstructions';
 import Modal from '@/components/ui/Modal';
 import DeleteDialog from '@/components/ui/DeleteDialog';
+import RecipeNotes from '@/components/recipe/RecipeNotes';
 
 // Color palette for placeholder backgrounds
 const PLACEHOLDER_COLORS = [
@@ -256,11 +257,14 @@ export default function RecipeDetailView({recipe}: RecipeDetailViewProps) {
                 </div>
 
                 {/* Instructions Column */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 space-y-6">
                     <div className="card p-6 md:p-8">
                         <h2 className="section-header text-xl mb-6">Zubereitung</h2>
                         <RecipeInstructions instructions={recipe.recipeInstructions}/>
                     </div>
+
+                    {/* Notes Section */}
+                    <RecipeNotes recipeId={recipe._id} initialNotes={recipe.notes || ''}/>
                 </div>
             </div>
 

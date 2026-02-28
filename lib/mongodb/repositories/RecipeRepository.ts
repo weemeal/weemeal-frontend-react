@@ -9,12 +9,14 @@ export interface CreateRecipeInput {
     ingredientListContent?: IIngredientListContent[];
     imageUrl?: string;
     tags?: string[];
+    notes?: string;
     userId?: string;
 }
 
 export interface UpdateRecipeInput extends Partial<CreateRecipeInput> {
     imageUrl?: string;
     tags?: string[];
+    notes?: string;
 }
 
 export class RecipeRepository {
