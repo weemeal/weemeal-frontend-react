@@ -107,12 +107,13 @@ export default function HomePage() {
         <div className="space-y-8">
             {/* Hero Section */}
             <div
-                className="relative overflow-hidden bg-gradient-to-br from-primary-subtle via-white to-secondary-light/20 rounded-3xl p-8 md:p-12">
-                {/* Decorative elements */}
+                className="relative overflow-hidden bg-gradient-to-br from-primary-subtle from-10% via-white via-50% to-secondary-subtle rounded-3xl p-8 md:p-12 shadow-lg shadow-black/5">
+                {/* Decorative elements - green top left */}
                 <div
-                    className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/5 to-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"/>
+                    className="absolute top-0 left-0 w-72 h-72 bg-primary/10 rounded-full blur-3xl -translate-y-1/3 -translate-x-1/3"/>
+                {/* Orange bottom right */}
                 <div
-                    className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-secondary/5 to-secondary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"/>
+                    className="absolute bottom-0 right-0 w-48 h-48 bg-secondary/20 rounded-full blur-3xl translate-y-1/4 translate-x-1/4"/>
 
                 <div
                     className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
