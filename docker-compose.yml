@@ -1,37 +1,59 @@
 version: '3.9'
 
 services:
-  postgres_db:
-    container_name: db
-    image: postgres:16
+  # MongoDB for local development
+  mongodb:
+    image: mongo:7
+    container_name: weemeal-mongodb
+    restart: unless-stopped
     ports:
-      - "5432:5432"
-    volumes:
-      - /db/:/var/lib/postgresql/data
-    hostname: db
+      - "27017:27017"
     environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+      MONGO_INITDB_ROOT_USERNAME: weemeal
+      MONGO_INITDB_ROOT_PASSWORD: weemeal_dev
+      MONGO_INITDB_DATABASE: weemeal
+    volumes:
+      - mongodb_data:/data/db
     networks:
       - weemeal-network
 
-  weemeal-backend:
-    container_name: weemeal-backend
-    image: darthkali/weemeal-backend-spring:latest
-    environment:
-      - DB_HOSTNAME=db
-      - DB_PORT=5432
-      - DB_DATABASE_NAME=postgres
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - CORS_ALLOWED-ORIGINS=http://localhost:3003
+  # Keycloak for local auth testing
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: weemeal-keycloak
+    restart: unless-stopped
+    command: start-dev --import-realm
     ports:
-      - "8081:8080"
+      - "8080:8080"
+    environment:
+      KC_DB: dev-mem
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    volumes:
+      - ./docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     networks:
       - weemeal-network
+
+  # Mongo Express (optional Web UI for MongoDB)
+  mongo-express:
+    image: mongo-express:1.0
+    container_name: weemeal-mongo-express
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: weemeal
+      ME_CONFIG_MONGODB_ADMINPASSWORD: weemeal_dev
+      ME_CONFIG_MONGODB_URL: mongodb://weemeal:weemeal_dev@mongodb:27017/
+      ME_CONFIG_BASICAUTH: false
     depends_on:
-      - postgres_db
+      - mongodb
+    networks:
+      - weemeal-network
+
+volumes:
+  mongodb_data:
 
 networks:
   weemeal-network:
+    driver: bridge
