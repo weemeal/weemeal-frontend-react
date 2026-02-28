@@ -38,6 +38,7 @@
   "exclude": [
     "node_modules",
     "src",
+    "scripts",
     "vitest.config.ts",
     "vitest.setup.tsx",
     "__tests__",
