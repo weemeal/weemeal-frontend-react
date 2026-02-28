@@ -22,6 +22,13 @@ export interface SectionCaption extends BaseContent {
 
 export type IngredientListContent = Ingredient | SectionCaption;
 
+export interface RecipeSource {
+    type: 'book' | 'url';
+    bookTitle?: string;
+    bookPage?: string;
+    url?: string;
+}
+
 export interface Recipe {
     _id?: ObjectId | string;
     name: string;
@@ -31,6 +38,7 @@ export interface Recipe {
     imageUrl?: string;
     tags?: string[];
     notes?: string;
+    source?: RecipeSource;
     userId?: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -46,6 +54,7 @@ export interface RecipeResponse extends Omit<Recipe, '_id' | 'createdAt' | 'upda
     imageUrl?: string;
     tags?: string[];
     notes?: string;
+    source?: RecipeSource;
     createdAt?: string;
     updatedAt?: string;
 }

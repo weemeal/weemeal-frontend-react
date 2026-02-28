@@ -8,8 +8,10 @@ import {DragDropContext, Draggable, Droppable, DropResult,} from '@hello-pangea/
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
     faArrowLeft,
+    faBook,
     faCarrot,
     faCloudUploadAlt,
+    faExternalLinkAlt,
     faGripVertical,
     faImage,
     faLayerGroup,
@@ -57,6 +59,14 @@ export default function RecipeFormView({
     const [tags, setTags] = useState<string[]>(recipe?.tags || []);
     const [newTag, setNewTag] = useState('');
     const [isGeneratingTags, setIsGeneratingTags] = useState(false);
+
+    // Source state
+    const [sourceType, setSourceType] = useState<'none' | 'book' | 'url'>(
+        recipe?.source?.type || 'none'
+    );
+    const [sourceBookTitle, setSourceBookTitle] = useState(recipe?.source?.bookTitle || '');
+    const [sourceBookPage, setSourceBookPage] = useState(recipe?.source?.bookPage || '');
+    const [sourceUrl, setSourceUrl] = useState(recipe?.source?.url || '');
 
     // Validation errors
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -309,6 +319,13 @@ export default function RecipeFormView({
                     position: idx,
                 })),
                 tags,
+                source: sourceType === 'none' ? null : sourceType === 'book'
+                    ? {
+                        type: 'book' as const,
+                        bookTitle: sourceBookTitle.trim(),
+                        bookPage: sourceBookPage.trim() || undefined
+                    }
+                    : {type: 'url' as const, url: sourceUrl.trim()},
             };
 
             // Include imageUrl - use null to explicitly clear, or the URL to set
@@ -470,6 +487,87 @@ export default function RecipeFormView({
                     </div>
                     {errors.tags && (
                         <p className="text-error text-sm mt-2">{errors.tags}</p>
+                    )}
+                </div>
+
+                {/* Source / Originalquelle */}
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-text-dark mb-2">
+                        Originalquelle (optional)
+                    </label>
+
+                    {/* Source type toggle */}
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setSourceType('none')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                                sourceType === 'none'
+                                    ? 'bg-gray-200 text-gray-800'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-150'
+                            }`}
+                        >
+                            Keine
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSourceType('book')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                                sourceType === 'book'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-150'
+                            }`}
+                        >
+                            <FontAwesomeIcon icon={faBook} className="w-3 h-3"/>
+                            Buch
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSourceType('url')}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-1.5 transition-colors ${
+                                sourceType === 'url'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-gray-100 text-gray-500 hover:bg-gray-150'
+                            }`}
+                        >
+                            <FontAwesomeIcon icon={faExternalLinkAlt} className="w-3 h-3"/>
+                            Website
+                        </button>
+                    </div>
+
+                    {/* Source fields based on type */}
+                    {sourceType === 'book' && (
+                        <div className="space-y-3 p-4 bg-blue-50/50 rounded-xl border border-blue-100 mt-3">
+                            <input
+                                type="text"
+                                value={sourceBookTitle}
+                                onChange={(e) => setSourceBookTitle(e.target.value)}
+                                className="input"
+                                placeholder="Buchtitel"
+                                maxLength={200}
+                            />
+                            <input
+                                type="text"
+                                value={sourceBookPage}
+                                onChange={(e) => setSourceBookPage(e.target.value)}
+                                className="input"
+                                placeholder="Seite(n), z.B. S. 42 oder S. 15-18 (optional)"
+                                maxLength={50}
+                            />
+                        </div>
+                    )}
+
+                    {sourceType === 'url' && (
+                        <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 mt-3">
+                            <input
+                                type="url"
+                                value={sourceUrl}
+                                onChange={(e) => setSourceUrl(e.target.value)}
+                                className="input"
+                                placeholder="https://..."
+                                maxLength={2000}
+                            />
+                        </div>
                     )}
                 </div>
 

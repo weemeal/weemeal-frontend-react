@@ -18,6 +18,13 @@ export interface ISectionCaption {
 
 export type IIngredientListContent = IIngredient | ISectionCaption;
 
+export interface IRecipeSource {
+    type: 'book' | 'url';
+    bookTitle?: string;
+    bookPage?: string;
+    url?: string;
+}
+
 export interface IRecipe {
     name: string;
     recipeYield: number;
@@ -26,6 +33,7 @@ export interface IRecipe {
     imageUrl?: string;
     tags?: string[];
     notes?: string;
+    source?: IRecipeSource;
     userId?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -87,6 +95,15 @@ const RecipeSchema = new Schema<IRecipeDocument>(
         notes: {
             type: String,
             default: '',
+        },
+        source: {
+            type: {
+                type: String,
+                enum: ['book', 'url'],
+            },
+            bookTitle: String,
+            bookPage: String,
+            url: String,
         },
         userId: {
             type: String,

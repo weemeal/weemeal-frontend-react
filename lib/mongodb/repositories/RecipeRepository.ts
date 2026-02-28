@@ -2,6 +2,13 @@ import {connectToDatabase} from '../connection';
 import Recipe, {IIngredientListContent, IRecipeDocument} from '../models/Recipe';
 import mongoose from 'mongoose';
 
+export interface RecipeSourceInput {
+    type: 'book' | 'url';
+    bookTitle?: string;
+    bookPage?: string;
+    url?: string;
+}
+
 export interface CreateRecipeInput {
     name: string;
     recipeYield: number;
@@ -10,6 +17,7 @@ export interface CreateRecipeInput {
     imageUrl?: string;
     tags?: string[];
     notes?: string;
+    source?: RecipeSourceInput | null;
     userId?: string;
 }
 
@@ -17,6 +25,7 @@ export interface UpdateRecipeInput extends Partial<CreateRecipeInput> {
     imageUrl?: string;
     tags?: string[];
     notes?: string;
+    source?: RecipeSourceInput | null;
 }
 
 export class RecipeRepository {

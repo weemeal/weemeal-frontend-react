@@ -21,6 +21,24 @@ export const IngredientListContentSchema = z.discriminatedUnion('contentType', [
     SectionCaptionSchema,
 ]);
 
+export const RecipeSourceSchema = z.object({
+    type: z.enum(['book', 'url']),
+    bookTitle: z.string().max(200).optional(),
+    bookPage: z.string().max(50).optional(),
+    url: z.string().url().max(2000).optional(),
+}).refine(
+    (data) => {
+        if (data.type === 'book') {
+            return !!data.bookTitle;
+        }
+        if (data.type === 'url') {
+            return !!data.url;
+        }
+        return true;
+    },
+    {message: 'Book title or URL is required based on source type'}
+);
+
 export const RecipeInputSchema = z.object({
     name: z
         .string()
@@ -37,6 +55,7 @@ export const RecipeInputSchema = z.object({
     imageUrl: z.string().nullable().optional(),
     tags: z.array(z.string().max(25)).max(10).default([]),
     notes: z.string().max(5000).default(''),
+    source: RecipeSourceSchema.nullable().optional(),
     userId: z.string().optional(),
 });
 

@@ -8,8 +8,10 @@ import {QRCodeSVG} from 'qrcode.react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {
     faArrowLeft,
+    faBook,
     faCarrot,
     faEdit,
+    faExternalLinkAlt,
     faShoppingCart,
     faTrash,
     faUsers,
@@ -262,6 +264,44 @@ export default function RecipeDetailView({recipe}: RecipeDetailViewProps) {
                         <h2 className="section-header text-xl mb-6">Zubereitung</h2>
                         <RecipeInstructions instructions={recipe.recipeInstructions}/>
                     </div>
+
+                    {/* Source Section - Read Only */}
+                    {recipe.source && (
+                        <div className="card bg-blue-50/50 border-blue-200/50 p-5">
+                            <h3 className="text-sm font-semibold text-blue-800 mb-3">
+                                Originalquelle
+                            </h3>
+                            {recipe.source.type === 'book' ? (
+                                <div className="flex items-start gap-3">
+                                    <div
+                                        className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <FontAwesomeIcon icon={faBook} className="w-4 h-4 text-blue-600"/>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-800">{recipe.source.bookTitle}</p>
+                                        {recipe.source.bookPage && (
+                                            <p className="text-xs text-gray-500 mt-0.5">{recipe.source.bookPage}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <a
+                                    href={recipe.source.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-3 group"
+                                >
+                                    <div
+                                        className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <FontAwesomeIcon icon={faExternalLinkAlt} className="w-4 h-4 text-blue-600"/>
+                                    </div>
+                                    <span className="text-sm text-blue-600 group-hover:underline truncate">
+                                        {recipe.source.url}
+                                    </span>
+                                </a>
+                            )}
+                        </div>
+                    )}
 
                     {/* Notes Section */}
                     <RecipeNotes recipeId={recipe._id} initialNotes={recipe.notes || ''}/>
