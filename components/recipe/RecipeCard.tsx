@@ -78,9 +78,29 @@ export default function RecipeCard({recipe, priority = false}: RecipeCardProps) 
                 {/* Card Content */}
                 <div className="p-5 flex flex-col flex-1">
                     {/* Recipe Name */}
-                    <h2 className="text-lg font-semibold text-text-dark leading-tight mb-3 line-clamp-2 group-hover:text-primary transition-colors">
+                    <h2 className="text-lg font-semibold text-text-dark leading-tight mb-2 line-clamp-2 group-hover:text-primary transition-colors">
                         {recipe.name}
                     </h2>
+
+                    {/* Tags */}
+                    {recipe.tags && recipe.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                            {recipe.tags.slice(0, 3).map((tag) => (
+                                <span
+                                    key={tag}
+                                    className="px-2 py-0.5 rounded-full bg-gray-100 text-text-muted text-xs font-medium"
+                                >
+                                    {tag}
+                                </span>
+                            ))}
+                            {recipe.tags.length > 3 && (
+                                <span
+                                    className="px-2 py-0.5 rounded-full bg-gray-100 text-text-muted text-xs font-medium">
+                                    +{recipe.tags.length - 3}
+                                </span>
+                            )}
+                        </div>
+                    )}
 
                     {/* Meta Info */}
                     <div className="flex items-center gap-4 mt-auto">

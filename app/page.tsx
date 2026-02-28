@@ -63,9 +63,17 @@ export default function HomePage() {
             return recipes;
         }
         const lowerQuery = searchQuery.toLowerCase();
-        return recipes.filter((recipe) =>
-            recipe.name.toLowerCase().includes(lowerQuery)
-        );
+        return recipes.filter((recipe) => {
+            // Search in name
+            if (recipe.name.toLowerCase().includes(lowerQuery)) {
+                return true;
+            }
+            // Search in tags
+            if (recipe.tags?.some(tag => tag.toLowerCase().includes(lowerQuery))) {
+                return true;
+            }
+            return false;
+        });
     }, [recipes, searchQuery]);
 
     if (isLoading) {

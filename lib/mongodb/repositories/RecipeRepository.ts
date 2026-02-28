@@ -8,11 +8,13 @@ export interface CreateRecipeInput {
     recipeInstructions: string;
     ingredientListContent?: IIngredientListContent[];
     imageUrl?: string;
+    tags?: string[];
     userId?: string;
 }
 
 export interface UpdateRecipeInput extends Partial<CreateRecipeInput> {
     imageUrl?: string;
+    tags?: string[];
 }
 
 export class RecipeRepository {

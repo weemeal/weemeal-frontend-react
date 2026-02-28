@@ -24,6 +24,7 @@ export interface IRecipe {
     recipeInstructions: string;
     ingredientListContent: IIngredientListContent[];
     imageUrl?: string;
+    tags?: string[];
     userId?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -77,6 +78,11 @@ const RecipeSchema = new Schema<IRecipeDocument>(
         imageUrl: {
             type: String,
         },
+        tags: {
+            type: [String],
+            default: [],
+            index: true,
+        },
         userId: {
             type: String,
             index: true,
@@ -88,7 +94,7 @@ const RecipeSchema = new Schema<IRecipeDocument>(
 );
 
 // Indexes for common queries
-RecipeSchema.index({name: 'text'});
+RecipeSchema.index({name: 'text', tags: 'text'});
 RecipeSchema.index({createdAt: -1});
 
 // Prevent model overwrite in development

@@ -12,10 +12,13 @@ import {
     faGripVertical,
     faImage,
     faLayerGroup,
+    faMagicWandSparkles,
     faPlus,
     faRefresh,
     faSave,
     faSpinner,
+    faTags,
+    faTimes,
     faTrash,
     faUtensils,
 } from '@fortawesome/free-solid-svg-icons';
@@ -47,6 +50,9 @@ export default function RecipeFormView({
     const [imageUrl, setImageUrl] = useState(recipe?.imageUrl || '');
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const [imageSearchTerm, setImageSearchTerm] = useState('');
+    const [tags, setTags] = useState<string[]>(recipe?.tags || []);
+    const [newTag, setNewTag] = useState('');
+    const [isGeneratingTags, setIsGeneratingTags] = useState(false);
 
     // Validation errors
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -194,6 +200,66 @@ export default function RecipeFormView({
         }
     }, [name, isEditing, recipe?._id, buildSearchQuery]);
 
+    // Tag management
+    const handleAddTag = useCallback(() => {
+        const trimmedTag = newTag.trim();
+        if (trimmedTag && !tags.includes(trimmedTag)) {
+            setTags(prev => [...prev, trimmedTag]);
+            setNewTag('');
+        }
+    }, [newTag, tags]);
+
+    const handleRemoveTag = useCallback((tagToRemove: string) => {
+        setTags(prev => prev.filter(tag => tag !== tagToRemove));
+    }, []);
+
+    const handleGenerateTags = useCallback(async () => {
+        if (!name.trim()) {
+            setErrors(prev => ({...prev, tags: 'Bitte zuerst einen Rezeptnamen eingeben'}));
+            return;
+        }
+
+        setIsGeneratingTags(true);
+        setErrors(prev => {
+            const {tags: _tagsError, ...rest} = prev;
+            return rest;
+        });
+
+        try {
+            const response = await fetch('/api/recipes/generate-tags', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: name.trim(),
+                    ingredients: ingredientListContent,
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                // Merge with existing tags, avoiding duplicates
+                setTags(prev => {
+                    const newTags = data.tags.filter((t: string) => !prev.includes(t));
+                    return [...prev, ...newTags];
+                });
+            } else {
+                setErrors(prev => ({...prev, tags: 'Fehler beim Generieren der Tags'}));
+            }
+        } catch (error) {
+            console.error('Error generating tags:', error);
+            setErrors(prev => ({...prev, tags: 'Fehler beim Generieren der Tags'}));
+        } finally {
+            setIsGeneratingTags(false);
+        }
+    }, [name, ingredientListContent]);
+
+    const handleTagKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddTag();
+        }
+    }, [handleAddTag]);
+
     const validate = useCallback(() => {
         const newErrors: Record<string, string> = {};
 
@@ -238,6 +304,7 @@ export default function RecipeFormView({
                     ...c,
                     position: idx,
                 })),
+                tags,
             };
 
             // Include imageUrl - use null to explicitly clear, or the URL to set
@@ -324,6 +391,81 @@ export default function RecipeFormView({
                             <span className="w-1 h-1 rounded-full bg-error"/>
                             {errors.name}
                         </p>
+                    )}
+                </div>
+
+                {/* Tags */}
+                <div className="mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="block text-sm font-medium text-text-dark">
+                            <FontAwesomeIcon icon={faTags} className="w-3.5 h-3.5 mr-1.5 text-text-muted"/>
+                            Tags
+                        </label>
+                        <button
+                            type="button"
+                            onClick={handleGenerateTags}
+                            disabled={isGeneratingTags || !name.trim()}
+                            className="text-xs font-medium text-primary hover:text-primary-hover disabled:text-gray-400 flex items-center gap-1.5 transition-colors"
+                        >
+                            {isGeneratingTags ? (
+                                <>
+                                    <FontAwesomeIcon icon={faSpinner} className="w-3 h-3 animate-spin"/>
+                                    Generiere...
+                                </>
+                            ) : (
+                                <>
+                                    <FontAwesomeIcon icon={faMagicWandSparkles} className="w-3 h-3"/>
+                                    Auto-generieren
+                                </>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Tag chips */}
+                    <div className="flex flex-wrap gap-2 mb-3">
+                        {tags.map((tag) => (
+                            <span
+                                key={tag}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary-subtle text-primary text-sm font-medium"
+                            >
+                                {tag}
+                                <button
+                                    type="button"
+                                    onClick={() => handleRemoveTag(tag)}
+                                    className="w-4 h-4 rounded-full hover:bg-primary/20 flex items-center justify-center transition-colors"
+                                    aria-label={`Tag ${tag} entfernen`}
+                                >
+                                    <FontAwesomeIcon icon={faTimes} className="w-2.5 h-2.5"/>
+                                </button>
+                            </span>
+                        ))}
+                        {tags.length === 0 && (
+                            <span className="text-sm text-text-muted">Keine Tags</span>
+                        )}
+                    </div>
+
+                    {/* Add tag input */}
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={newTag}
+                            onChange={(e) => setNewTag(e.target.value)}
+                            onKeyDown={handleTagKeyDown}
+                            className="input flex-1"
+                            placeholder="Neuen Tag eingeben..."
+                            maxLength={25}
+                        />
+                        <button
+                            type="button"
+                            onClick={handleAddTag}
+                            disabled={!newTag.trim()}
+                            className="btn btn-outline px-4"
+                        >
+                            <FontAwesomeIcon icon={faPlus} className="w-4 h-4"/>
+                        </button>
+                    </div>
+                    {errors.tags && (
+                        <p className="text-error text-sm mt-2">{errors.tags}</p>
                     )}
                 </div>
 

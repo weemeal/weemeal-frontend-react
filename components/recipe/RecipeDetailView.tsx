@@ -180,7 +180,7 @@ export default function RecipeDetailView({recipe}: RecipeDetailViewProps) {
                 </h1>
 
                 {/* Meta badges */}
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3 mb-4">
                     <div className="badge badge-primary">
                         <FontAwesomeIcon icon={faUsers} className="w-3 h-3 mr-1.5"/>
                         {recipe.recipeYield} Portionen
@@ -190,6 +190,20 @@ export default function RecipeDetailView({recipe}: RecipeDetailViewProps) {
                         {ingredientCount} Zutaten
                     </div>
                 </div>
+
+                {/* Tags */}
+                {recipe.tags && recipe.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {recipe.tags.map((tag) => (
+                            <span
+                                key={tag}
+                                className="px-3 py-1 rounded-full bg-gray-100 text-text-dark text-sm font-medium"
+                            >
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

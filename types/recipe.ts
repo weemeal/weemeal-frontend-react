@@ -29,6 +29,7 @@ export interface Recipe {
     recipeInstructions: string;
     ingredientListContent: IngredientListContent[];
     imageUrl?: string;
+    tags?: string[];
     userId?: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -42,6 +43,7 @@ export interface RecipeDocument extends Omit<Recipe, '_id'> {
 export interface RecipeResponse extends Omit<Recipe, '_id' | 'createdAt' | 'updatedAt'> {
     _id: string;
     imageUrl?: string;
+    tags?: string[];
     createdAt?: string;
     updatedAt?: string;
 }

@@ -35,6 +35,7 @@ export const RecipeInputSchema = z.object({
     recipeInstructions: z.string().default(''),
     ingredientListContent: z.array(IngredientListContentSchema).default([]),
     imageUrl: z.string().nullable().optional(),
+    tags: z.array(z.string().max(25)).max(10).default([]),
     userId: z.string().optional(),
 });
 
