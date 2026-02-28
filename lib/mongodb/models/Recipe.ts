@@ -23,6 +23,7 @@ export interface IRecipe {
     recipeYield: number;
     recipeInstructions: string;
     ingredientListContent: IIngredientListContent[];
+    imageUrl?: string;
     userId?: string;
     createdAt: Date;
     updatedAt: Date;
@@ -72,6 +73,9 @@ const RecipeSchema = new Schema<IRecipeDocument>(
         ingredientListContent: {
             type: [IngredientListContentSchema],
             default: [],
+        },
+        imageUrl: {
+            type: String,
         },
         userId: {
             type: String,

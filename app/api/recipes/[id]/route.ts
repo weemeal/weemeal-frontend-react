@@ -1,4 +1,5 @@
 import {NextRequest, NextResponse} from 'next/server';
+import {revalidatePath} from 'next/cache';
 import {recipeRepository} from '@/lib/mongodb/repositories/RecipeRepository';
 import {validateRecipeUpdate} from '@/lib/validations/recipeSchema';
 
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest, {params}: RouteParams) {
             recipeYield: recipe.recipeYield,
             recipeInstructions: recipe.recipeInstructions,
             ingredientListContent: recipe.ingredientListContent,
+            imageUrl: recipe.imageUrl,
             userId: recipe.userId,
             createdAt: recipe.createdAt?.toISOString(),
             updatedAt: recipe.updatedAt?.toISOString(),
@@ -61,7 +63,14 @@ export async function PUT(request: NextRequest, {params}: RouteParams) {
             );
         }
 
-        const recipe = await recipeRepository.update(id, validation.data!);
+        // Handle null imageUrl (means: remove the image)
+        const validatedData = validation.data!;
+        const updateData: Record<string, unknown> = {...validatedData};
+        if (validatedData.imageUrl === null) {
+            updateData.imageUrl = '';  // Empty string to clear
+        }
+
+        const recipe = await recipeRepository.update(id, updateData as Parameters<typeof recipeRepository.update>[1]);
 
         if (!recipe) {
             return NextResponse.json(
@@ -70,12 +79,17 @@ export async function PUT(request: NextRequest, {params}: RouteParams) {
             );
         }
 
+        // Revalidate cache for this recipe and home page
+        revalidatePath(`/recipe/${id}`);
+        revalidatePath('/');
+
         const response = {
             _id: recipe._id.toString(),
             name: recipe.name,
             recipeYield: recipe.recipeYield,
             recipeInstructions: recipe.recipeInstructions,
             ingredientListContent: recipe.ingredientListContent,
+            imageUrl: recipe.imageUrl,
             userId: recipe.userId,
             createdAt: recipe.createdAt?.toISOString(),
             updatedAt: recipe.updatedAt?.toISOString(),
@@ -103,6 +117,9 @@ export async function DELETE(request: NextRequest, {params}: RouteParams) {
                 {status: 404}
             );
         }
+
+        // Revalidate cache for home page
+        revalidatePath('/');
 
         return NextResponse.json({success: true}, {status: 200});
     } catch (error) {

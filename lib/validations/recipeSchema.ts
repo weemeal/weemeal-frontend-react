@@ -34,6 +34,7 @@ export const RecipeInputSchema = z.object({
         .max(100, 'Recipe yield cannot exceed 100'),
     recipeInstructions: z.string().default(''),
     ingredientListContent: z.array(IngredientListContentSchema).default([]),
+    imageUrl: z.string().nullable().optional(),
     userId: z.string().optional(),
 });
 

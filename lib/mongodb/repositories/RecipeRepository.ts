@@ -7,10 +7,12 @@ export interface CreateRecipeInput {
     recipeYield: number;
     recipeInstructions: string;
     ingredientListContent?: IIngredientListContent[];
+    imageUrl?: string;
     userId?: string;
 }
 
 export interface UpdateRecipeInput extends Partial<CreateRecipeInput> {
+    imageUrl?: string;
 }
 
 export class RecipeRepository {

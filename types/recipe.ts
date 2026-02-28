@@ -28,6 +28,7 @@ export interface Recipe {
     recipeYield: number;
     recipeInstructions: string;
     ingredientListContent: IngredientListContent[];
+    imageUrl?: string;
     userId?: string;
     createdAt?: Date;
     updatedAt?: Date;
@@ -40,6 +41,7 @@ export interface RecipeDocument extends Omit<Recipe, '_id'> {
 // For API responses (serialized)
 export interface RecipeResponse extends Omit<Recipe, '_id' | 'createdAt' | 'updatedAt'> {
     _id: string;
+    imageUrl?: string;
     createdAt?: string;
     updatedAt?: string;
 }

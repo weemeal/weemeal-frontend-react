@@ -21,14 +21,32 @@ export default function ContentItem({content, portionMultiplier = 1}: ContentIte
                 : parseFloat(content.amount) * portionMultiplier
             : null;
 
+        // Format amount nicely (remove trailing zeros)
+        const formattedAmount = amount !== null
+            ? amount % 1 === 0
+                ? amount.toString()
+                : amount.toFixed(2).replace(/\.?0+$/, '')
+            : null;
+
         return (
-            <div className="ingredient-item">
-                {amount !== null && (
-                    <span className="font-medium min-w-[4rem]">
-            {amount} {content.unit || ''}
-          </span>
-                )}
-                <span>{content.ingredientName}</span>
+            <div className="ingredient-item group">
+                <div className="flex items-center gap-2 flex-1">
+                    {/* Bullet point */}
+                    <div
+                        className="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary transition-colors flex-shrink-0"/>
+
+                    {/* Amount and unit */}
+                    {formattedAmount !== null && (
+                        <span className="font-semibold text-text-dark min-w-[5rem] tabular-nums">
+                            {formattedAmount} {content.unit || ''}
+                        </span>
+                    )}
+
+                    {/* Ingredient name */}
+                    <span className="text-text-dark">
+                        {content.ingredientName}
+                    </span>
+                </div>
             </div>
         );
     }

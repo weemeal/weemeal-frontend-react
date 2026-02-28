@@ -1,10 +1,24 @@
 'use client';
 
-import {useCallback, useState} from 'react';
+import {useCallback, useMemo, useState} from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import {useRouter} from 'next/navigation';
 import {DragDropContext, Draggable, Droppable, DropResult,} from '@hello-pangea/dnd';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faGripVertical, faPlus, faSave, faTrash,} from '@fortawesome/free-solid-svg-icons';
+import {
+    faArrowLeft,
+    faCarrot,
+    faGripVertical,
+    faImage,
+    faLayerGroup,
+    faPlus,
+    faRefresh,
+    faSave,
+    faSpinner,
+    faTrash,
+    faUtensils,
+} from '@fortawesome/free-solid-svg-icons';
 import {v4 as uuidv4} from 'uuid';
 import {IngredientListContent, RecipeResponse} from '@/types/recipe';
 import PortionControl from '@/components/ui/PortionControl';
@@ -30,9 +44,40 @@ export default function RecipeFormView({
     const [ingredientListContent, setIngredientListContent] = useState<
         IngredientListContent[]
     >(recipe?.ingredientListContent || []);
+    const [imageUrl, setImageUrl] = useState(recipe?.imageUrl || '');
+    const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+    const [imageSearchTerm, setImageSearchTerm] = useState('');
 
     // Validation errors
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Color palette for placeholder backgrounds
+    const PLACEHOLDER_COLORS = [
+        {bg: 'from-amber-50 to-orange-100', icon: 'text-amber-400', hex: '#F59E0B'},
+        {bg: 'from-emerald-50 to-teal-100', icon: 'text-emerald-400', hex: '#10B981'},
+        {bg: 'from-rose-50 to-pink-100', icon: 'text-rose-400', hex: '#F43F5E'},
+        {bg: 'from-indigo-50 to-purple-100', icon: 'text-indigo-400', hex: '#6366F1'},
+        {bg: 'from-sky-50 to-cyan-100', icon: 'text-sky-400', hex: '#0EA5E9'},
+        {bg: 'from-lime-50 to-green-100', icon: 'text-lime-500', hex: '#84CC16'},
+    ];
+
+    // Generate SVG placeholder as data URL
+    const generatePlaceholderSvg = useCallback((text: string, color: string) => {
+        const displayText = text.substring(0, 30);
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+            <rect width="800" height="600" fill="${color}" opacity="0.15"/>
+            <circle cx="400" cy="250" r="80" fill="${color}" opacity="0.3"/>
+            <text x="400" y="260" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" fill="${color}">🍽️</text>
+            <text x="400" y="380" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#374151" font-weight="600">${displayText}</text>
+            <text x="400" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#9CA3AF">Bild wird generiert...</text>
+        </svg>`;
+        return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+    }, []);
+
+    const colorIndex = useMemo(() => {
+        return (name || 'recipe').length % PLACEHOLDER_COLORS.length;
+    }, [name]);
+    const placeholderColor = PLACEHOLDER_COLORS[colorIndex];
 
     const handleAddIngredient = useCallback(() => {
         const newIngredient: IngredientListContent = {
@@ -91,6 +136,64 @@ export default function RecipeFormView({
         });
     }, []);
 
+    // Build search query from name + main ingredients
+    const buildSearchQuery = useCallback(() => {
+        if (imageSearchTerm.trim()) {
+            return imageSearchTerm.trim();
+        }
+
+        // Use name + first 3 ingredients
+        const ingredientNames = ingredientListContent
+            .filter((c): c is IngredientListContent & { contentType: 'INGREDIENT'; ingredientName: string } =>
+                c.contentType === 'INGREDIENT' && Boolean(c.ingredientName))
+            .slice(0, 3)
+            .map(c => c.ingredientName)
+            .join(' ');
+
+        return `${name.trim()} ${ingredientNames}`.trim();
+    }, [name, ingredientListContent, imageSearchTerm]);
+
+    const handleGenerateImage = useCallback(async () => {
+        if (!name.trim()) {
+            setErrors(prev => ({...prev, image: 'Bitte zuerst einen Rezeptnamen eingeben'}));
+            return;
+        }
+
+        setIsGeneratingImage(true);
+        setErrors(prev => {
+            const {image, ...rest} = prev;
+            return rest;
+        });
+
+        const searchQuery = buildSearchQuery();
+
+        try {
+            // For existing recipes, use the API with regenerate flag and search query
+            if (isEditing && recipe?._id) {
+                const params = new URLSearchParams({
+                    regenerate: 'true',
+                    name: searchQuery,
+                });
+                const response = await fetch(`/api/recipes/${recipe._id}/image?${params}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    setImageUrl(data.imageUrl);
+                } else {
+                    setErrors(prev => ({...prev, image: 'Fehler beim Generieren des Bildes'}));
+                }
+            } else {
+                // For new recipes, generate a placeholder SVG
+                const placeholderUrl = generatePlaceholderSvg(searchQuery, placeholderColor.hex);
+                setImageUrl(placeholderUrl);
+            }
+        } catch (error) {
+            console.error('Error generating image:', error);
+            setErrors(prev => ({...prev, image: 'Fehler beim Generieren des Bildes'}));
+        } finally {
+            setIsGeneratingImage(false);
+        }
+    }, [name, isEditing, recipe?._id, buildSearchQuery]);
+
     const validate = useCallback(() => {
         const newErrors: Record<string, string> = {};
 
@@ -127,7 +230,7 @@ export default function RecipeFormView({
         setIsSaving(true);
 
         try {
-            const data = {
+            const data: Record<string, unknown> = {
                 name: name.trim(),
                 recipeYield,
                 recipeInstructions,
@@ -136,6 +239,14 @@ export default function RecipeFormView({
                     position: idx,
                 })),
             };
+
+            // Include imageUrl - use null to explicitly clear, or the URL to set
+            if (imageUrl) {
+                data.imageUrl = imageUrl;
+            } else if (isEditing) {
+                // Only send null when editing (to clear existing image)
+                data.imageUrl = null;
+            }
 
             const url = isEditing ? `/api/recipes/${recipe?._id}` : '/api/recipes';
             const method = isEditing ? 'PUT' : 'POST';
@@ -148,7 +259,9 @@ export default function RecipeFormView({
 
             if (response.ok) {
                 const savedRecipe = await response.json();
+                // Navigate directly - the API already revalidated the cache
                 router.push(`/recipe/${savedRecipe._id}`);
+                router.refresh();
             } else {
                 const error = await response.json();
                 console.error('Failed to save recipe:', error);
@@ -163,47 +276,197 @@ export default function RecipeFormView({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
-            <div className="card p-6 mb-6">
-                <h1 className="text-2xl font-bold text-text-dark mb-6">
-                    {isEditing ? 'Rezept bearbeiten' : 'Neues Rezept'}
-                </h1>
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto animate-fade-in">
+            {/* Back Button */}
+            <Link
+                href={isEditing ? `/recipe/${recipe?._id}` : '/'}
+                className="inline-flex items-center gap-2 text-text-muted hover:text-text-dark mb-6 group transition-colors"
+            >
+                <FontAwesomeIcon
+                    icon={faArrowLeft}
+                    className="w-4 h-4 group-hover:-translate-x-1 transition-transform"
+                />
+                <span>Zurueck</span>
+            </Link>
+
+            {/* Header Card */}
+            <div className="card p-6 md:p-8 mb-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div
+                        className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
+                        <FontAwesomeIcon icon={faUtensils} className="w-6 h-6 text-white"/>
+                    </div>
+                    <div>
+                        <h1 className="text-2xl font-bold text-text-dark">
+                            {isEditing ? 'Rezept bearbeiten' : 'Neues Rezept'}
+                        </h1>
+                        <p className="text-sm text-text-muted">
+                            {isEditing ? 'Aendere die Details deines Rezepts' : 'Erstelle ein neues Rezept fuer deine Sammlung'}
+                        </p>
+                    </div>
+                </div>
 
                 {/* Recipe Name */}
-                <div className="mb-4">
-                    <label htmlFor="name" className="block text-sm font-medium mb-1">
-                        Rezeptname *
+                <div className="mb-6">
+                    <label htmlFor="name" className="block text-sm font-medium text-text-dark mb-2">
+                        Rezeptname <span className="text-error">*</span>
                     </label>
                     <input
                         id="name"
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className={`input ${errors.name ? 'input-error' : ''}`}
+                        className={`input text-lg ${errors.name ? 'input-error' : ''}`}
                         placeholder="z.B. Spaghetti Bolognese"
                     />
                     {errors.name && (
-                        <p className="text-error text-sm mt-1">{errors.name}</p>
+                        <p className="text-error text-sm mt-2 flex items-center gap-1">
+                            <span className="w-1 h-1 rounded-full bg-error"/>
+                            {errors.name}
+                        </p>
                     )}
                 </div>
 
                 {/* Portions */}
-                <div className="mb-4">
-                    <label className="block text-sm font-medium mb-1">Portionen</label>
-                    <PortionControl
-                        portions={recipeYield}
-                        onIncrease={() => setRecipeYield((p) => p + 1)}
-                        onDecrease={() => setRecipeYield((p) => Math.max(1, p - 1))}
-                    />
+                <div>
+                    <label className="block text-sm font-medium text-text-dark mb-2">
+                        Portionen
+                    </label>
+                    <div className="flex items-center gap-4">
+                        <PortionControl
+                            portions={recipeYield}
+                            onIncrease={() => setRecipeYield((p) => p + 1)}
+                            onDecrease={() => setRecipeYield((p) => Math.max(1, p - 1))}
+                        />
+                        <span className="text-sm text-text-muted">
+                            Anzahl der Portionen fuer dieses Rezept
+                        </span>
+                    </div>
                     {errors.recipeYield && (
-                        <p className="text-error text-sm mt-1">{errors.recipeYield}</p>
+                        <p className="text-error text-sm mt-2">{errors.recipeYield}</p>
                     )}
                 </div>
             </div>
 
-            {/* Ingredients */}
-            <div className="card p-6 mb-6">
-                <h2 className="section-header">Zutaten</h2>
+            {/* Image Card */}
+            <div className="card p-6 md:p-8 mb-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-secondary-subtle flex items-center justify-center">
+                        <FontAwesomeIcon icon={faImage} className="w-5 h-5 text-secondary"/>
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold text-text-dark">Rezeptbild</h2>
+                        <p className="text-sm text-text-muted">
+                            Generiere ein Bild fuer dein Rezept
+                        </p>
+                    </div>
+                </div>
+
+                {/* Image Preview */}
+                <div
+                    className={`relative h-48 md:h-64 rounded-2xl overflow-hidden mb-4 bg-gradient-to-br ${placeholderColor.bg}`}>
+                    {imageUrl ? (
+                        imageUrl.startsWith('data:') ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                                src={imageUrl}
+                                alt={name || 'Rezeptbild'}
+                                className="absolute inset-0 w-full h-full object-cover"
+                            />
+                        ) : (
+                            <Image
+                                src={imageUrl}
+                                alt={name || 'Rezeptbild'}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, 800px"
+                            />
+                        )
+                    ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <div
+                                className="w-20 h-20 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center mb-4">
+                                <FontAwesomeIcon
+                                    icon={faImage}
+                                    className={`w-10 h-10 ${placeholderColor.icon}`}
+                                />
+                            </div>
+                            <p className="text-sm text-gray-500">Noch kein Bild vorhanden</p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Custom Search Term */}
+                <div className="mb-4">
+                    <label htmlFor="imageSearch" className="block text-sm font-medium text-text-dark mb-2">
+                        Suchbegriff fuer Bild <span className="text-text-muted font-normal">(optional)</span>
+                    </label>
+                    <input
+                        id="imageSearch"
+                        type="text"
+                        value={imageSearchTerm}
+                        onChange={(e) => setImageSearchTerm(e.target.value)}
+                        className="input"
+                        placeholder={`Leer = "${name || 'Rezeptname'}" + Zutaten`}
+                    />
+                    <p className="text-xs text-text-muted mt-1">
+                        Leer lassen fuer automatische Suche nach Rezeptname und Hauptzutaten
+                    </p>
+                </div>
+
+                {/* Generate Button */}
+                <div className="flex flex-wrap items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={handleGenerateImage}
+                        disabled={isGeneratingImage || !name.trim()}
+                        className="btn btn-outline"
+                    >
+                        {isGeneratingImage ? (
+                            <>
+                                <FontAwesomeIcon icon={faSpinner} className="w-4 h-4 animate-spin"/>
+                                Generiere...
+                            </>
+                        ) : (
+                            <>
+                                <FontAwesomeIcon icon={imageUrl ? faRefresh : faImage} className="w-4 h-4"/>
+                                {imageUrl ? 'Neues Bild generieren' : 'Bild generieren'}
+                            </>
+                        )}
+                    </button>
+                    {imageUrl && (
+                        <button
+                            type="button"
+                            onClick={() => setImageUrl('')}
+                            className="btn btn-ghost text-error"
+                        >
+                            <FontAwesomeIcon icon={faTrash} className="w-4 h-4"/>
+                            Bild entfernen
+                        </button>
+                    )}
+                </div>
+
+                {errors.image && (
+                    <p className="text-error text-sm mt-3 flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-error"/>
+                        {errors.image}
+                    </p>
+                )}
+            </div>
+
+            {/* Ingredients Card */}
+            <div className="card p-6 md:p-8 mb-6">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-xl bg-primary-subtle flex items-center justify-center">
+                        <FontAwesomeIcon icon={faCarrot} className="w-5 h-5 text-primary"/>
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-semibold text-text-dark">Zutaten</h2>
+                        <p className="text-sm text-text-muted">
+                            Ziehe die Elemente zum Sortieren
+                        </p>
+                    </div>
+                </div>
 
                 <DragDropContext onDragEnd={handleDragEnd}>
                     <Droppable droppableId="ingredients">
@@ -213,6 +476,13 @@ export default function RecipeFormView({
                                 {...provided.droppableProps}
                                 className="space-y-3"
                             >
+                                {ingredientListContent.length === 0 && (
+                                    <div className="text-center py-8 text-text-muted">
+                                        <FontAwesomeIcon icon={faCarrot} className="w-8 h-8 text-gray-300 mb-3"/>
+                                        <p>Noch keine Zutaten hinzugefuegt</p>
+                                    </div>
+                                )}
+
                                 {ingredientListContent.map((content, index) => (
                                     <Draggable
                                         key={content.contentId}
@@ -223,8 +493,12 @@ export default function RecipeFormView({
                                             <div
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
-                                                className={`flex items-center gap-2 p-3 bg-gray-50 rounded-lg ${
-                                                    snapshot.isDragging ? 'shadow-lg' : ''
+                                                className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all ${
+                                                    snapshot.isDragging
+                                                        ? 'bg-white shadow-lg border-primary'
+                                                        : content.contentType === 'SECTION_CAPTION'
+                                                            ? 'bg-primary-subtle/30 border-primary/20'
+                                                            : 'bg-gray-50 border-transparent hover:border-gray-200'
                                                 }`}
                                             >
                                                 {/* Drag Handle */}
@@ -251,8 +525,8 @@ export default function RecipeFormView({
                                                                     e.target.value ? parseFloat(e.target.value) : ''
                                                                 )
                                                             }
-                                                            className="input w-20"
-                                                            placeholder="Menge"
+                                                            className="input w-20 text-center"
+                                                            placeholder="0"
                                                             step="any"
                                                         />
 
@@ -267,8 +541,8 @@ export default function RecipeFormView({
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            className="input w-20"
-                                                            placeholder="Einheit"
+                                                            className="input w-20 text-center"
+                                                            placeholder="g"
                                                         />
 
                                                         {/* Ingredient Name */}
@@ -285,11 +559,19 @@ export default function RecipeFormView({
                                                             className={`input flex-1 ${
                                                                 errors[`ingredient-${index}`] ? 'input-error' : ''
                                                             }`}
-                                                            placeholder="Zutat"
+                                                            placeholder="Zutat eingeben..."
                                                         />
                                                     </>
                                                 ) : (
                                                     <>
+                                                        {/* Section indicator */}
+                                                        <div className="flex items-center gap-2 px-2">
+                                                            <FontAwesomeIcon
+                                                                icon={faLayerGroup}
+                                                                className="w-4 h-4 text-primary"
+                                                            />
+                                                        </div>
+
                                                         {/* Section Caption */}
                                                         <input
                                                             type="text"
@@ -301,10 +583,10 @@ export default function RecipeFormView({
                                                                     e.target.value
                                                                 )
                                                             }
-                                                            className={`input flex-1 font-bold ${
+                                                            className={`input flex-1 font-semibold ${
                                                                 errors[`section-${index}`] ? 'input-error' : ''
                                                             }`}
-                                                            placeholder="Abschnitt (z.B. Sauce)"
+                                                            placeholder="Abschnitt (z.B. Fuer die Sauce)"
                                                         />
                                                     </>
                                                 )}
@@ -313,7 +595,8 @@ export default function RecipeFormView({
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveContent(content.contentId)}
-                                                    className="p-2 text-error hover:bg-error/10 rounded-lg transition-colors"
+                                                    className="w-10 h-10 flex items-center justify-center rounded-xl text-gray-400 hover:bg-error/10 hover:text-error transition-colors"
+                                                    aria-label="Entfernen"
                                                 >
                                                     <FontAwesomeIcon icon={faTrash} className="w-4 h-4"/>
                                                 </button>
@@ -328,69 +611,123 @@ export default function RecipeFormView({
                 </DragDropContext>
 
                 {/* Add Buttons */}
-                <div className="flex gap-3 mt-4">
+                <div className="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-100">
                     <button
                         type="button"
                         onClick={handleAddIngredient}
-                        className="btn btn-outline flex items-center gap-2"
+                        className="btn btn-outline"
                     >
                         <FontAwesomeIcon icon={faPlus} className="w-4 h-4"/>
-                        Zutat hinzufügen
+                        Zutat
                     </button>
                     <button
                         type="button"
                         onClick={handleAddSection}
-                        className="btn btn-outline flex items-center gap-2"
+                        className="btn btn-ghost"
                     >
-                        <FontAwesomeIcon icon={faPlus} className="w-4 h-4"/>
-                        Abschnitt hinzufügen
+                        <FontAwesomeIcon icon={faLayerGroup} className="w-4 h-4"/>
+                        Abschnitt
                     </button>
                 </div>
             </div>
 
-            {/* Instructions */}
-            <div className="card p-6 mb-6">
-                <h2 className="section-header">Zubereitung</h2>
+            {/* Instructions Card */}
+            <div className="card p-6 md:p-8 mb-6">
+                <h2 className="section-header mb-4">Zubereitung</h2>
                 <textarea
                     value={recipeInstructions}
                     onChange={(e) => setRecipeInstructions(e.target.value)}
-                    className="input textarea-auto"
-                    placeholder="Beschreibe hier die Zubereitung... (Markdown wird unterstützt)"
-                    rows={6}
+                    className="input textarea-auto min-h-[200px]"
+                    placeholder="Beschreibe hier die Zubereitung Schritt fuer Schritt...&#10;&#10;Tipp: Du kannst Markdown verwenden fuer Formatierung."
+                    rows={8}
                 />
             </div>
 
-            {/* Submit */}
+            {/* Submit Error */}
             {errors.submit && (
-                <p className="text-error text-center mb-4">{errors.submit}</p>
+                <div className="bg-error/10 border border-error/20 rounded-xl p-4 mb-6 text-center">
+                    <p className="text-error font-medium">{errors.submit}</p>
+                </div>
             )}
 
-            <div className="flex justify-end gap-3">
-                <button
-                    type="button"
-                    onClick={() => router.back()}
-                    className="btn btn-outline"
+            {/* Spacer for floating buttons */}
+            <div className="h-24 md:h-20"/>
+
+            {/* Floating Action Buttons */}
+            <div
+                className="
+                    fixed z-50
+                    bottom-0 left-0 right-0
+                    px-4 py-3
+                    bg-white/90 backdrop-blur-lg
+                    border-t border-gray-200
+                    md:bottom-6 md:right-6 md:left-auto
+                    md:px-0 md:py-0
+                    md:bg-transparent md:backdrop-blur-none
+                    md:border-0
+                    transition-all duration-300 ease-out
+                "
+                role="group"
+                aria-label="Formular-Aktionen"
+            >
+                <div
+                    className="
+                        flex items-center gap-3 justify-end
+                        md:bg-white md:rounded-2xl
+                        md:shadow-lg md:shadow-gray-900/10
+                        md:border md:border-gray-100
+                        md:px-3 md:py-3
+                    "
                 >
-                    Abbrechen
-                </button>
-                <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="btn btn-primary flex items-center gap-2"
-                >
-                    {isSaving ? (
-                        <>
-                            <span
-                                className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
-                            Speichern...
-                        </>
-                    ) : (
-                        <>
-                            <FontAwesomeIcon icon={faSave} className="w-4 h-4"/>
-                            Speichern
-                        </>
-                    )}
-                </button>
+                    {/* Cancel Button */}
+                    <button
+                        type="button"
+                        onClick={() => router.back()}
+                        className="
+                            px-5 py-2.5 rounded-xl
+                            text-sm font-semibold
+                            text-gray-600
+                            bg-gray-100 hover:bg-gray-200
+                            transition-all duration-150
+                            focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2
+                            active:scale-[0.98]
+                        "
+                    >
+                        Abbrechen
+                    </button>
+
+                    {/* Save Button */}
+                    <button
+                        type="submit"
+                        disabled={isSaving}
+                        className="
+                            px-6 py-2.5 rounded-xl
+                            text-sm font-semibold text-white
+                            bg-primary hover:bg-primary-hover
+                            shadow-md shadow-primary/25
+                            transition-all duration-150
+                            disabled:opacity-70 disabled:cursor-not-allowed
+                            hover:shadow-lg hover:shadow-primary/30
+                            hover:-translate-y-0.5
+                            focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
+                            active:scale-[0.98]
+                            flex items-center gap-2
+                        "
+                    >
+                        {isSaving ? (
+                            <>
+                                <span
+                                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                                Speichern...
+                            </>
+                        ) : (
+                            <>
+                                <FontAwesomeIcon icon={faSave} className="w-4 h-4"/>
+                                {isEditing ? 'Speichern' : 'Erstellen'}
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
         </form>
     );

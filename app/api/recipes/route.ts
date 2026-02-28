@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
             recipeYield: recipe.recipeYield,
             recipeInstructions: recipe.recipeInstructions,
             ingredientListContent: recipe.ingredientListContent,
+            imageUrl: recipe.imageUrl,
             userId: recipe.userId,
             createdAt: recipe.createdAt?.toISOString(),
             updatedAt: recipe.updatedAt?.toISOString(),
@@ -58,7 +59,13 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const recipe = await recipeRepository.create(validation.data!);
+        // Filter out null imageUrl for creation
+        const createData = {...validation.data!};
+        if (createData.imageUrl === null) {
+            delete createData.imageUrl;
+        }
+
+        const recipe = await recipeRepository.create(createData as Parameters<typeof recipeRepository.create>[0]);
 
         const response = {
             _id: recipe._id.toString(),
@@ -66,6 +73,7 @@ export async function POST(request: NextRequest) {
             recipeYield: recipe.recipeYield,
             recipeInstructions: recipe.recipeInstructions,
             ingredientListContent: recipe.ingredientListContent,
+            imageUrl: recipe.imageUrl,
             userId: recipe.userId,
             createdAt: recipe.createdAt?.toISOString(),
             updatedAt: recipe.updatedAt?.toISOString(),

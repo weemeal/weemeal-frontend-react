@@ -41,17 +41,27 @@ export default function Modal({isOpen, onClose, title, children}: ModalProps) {
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose();
             }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={title ? 'modal-title' : undefined}
         >
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div
+                className="modal-content"
+                onClick={(e) => e.stopPropagation()}
+            >
                 {/* Header */}
-                <div className="flex items-center justify-between mb-4">
-                    {title && <h2 className="text-xl font-semibold">{title}</h2>}
+                <div className="flex items-center justify-between mb-6">
+                    {title && (
+                        <h2 id="modal-title" className="text-xl font-bold text-text-dark">
+                            {title}
+                        </h2>
+                    )}
                     <button
                         onClick={onClose}
-                        className="ml-auto p-1 hover:bg-gray-100 rounded-full transition-colors"
-                        aria-label="Schließen"
+                        className="ml-auto w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
+                        aria-label="Schliessen"
                     >
-                        <FontAwesomeIcon icon={faTimes} className="w-5 h-5 text-gray-500"/>
+                        <FontAwesomeIcon icon={faTimes} className="w-5 h-5 text-gray-400"/>
                     </button>
                 </div>
 
