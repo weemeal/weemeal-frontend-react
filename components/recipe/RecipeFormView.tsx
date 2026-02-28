@@ -298,9 +298,17 @@ export default function RecipeFormView({
             }
         });
 
+        // Validate source fields
+        if (sourceType === 'book' && !sourceBookTitle.trim()) {
+            newErrors.sourceBookTitle = 'Buchtitel ist erforderlich';
+        }
+        if (sourceType === 'url' && !sourceUrl.trim()) {
+            newErrors.sourceUrl = 'URL ist erforderlich';
+        }
+
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    }, [name, recipeYield, ingredientListContent]);
+    }, [name, recipeYield, ingredientListContent, sourceType, sourceBookTitle, sourceUrl]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -325,7 +333,12 @@ export default function RecipeFormView({
                         bookTitle: sourceBookTitle.trim(),
                         bookPage: sourceBookPage.trim() || undefined
                     }
-                    : {type: 'url' as const, url: sourceUrl.trim()},
+                    : {
+                        type: 'url' as const,
+                        url: sourceUrl.trim().match(/^https?:\/\//)
+                            ? sourceUrl.trim()
+                            : `https://${sourceUrl.trim()}`
+                    },
             };
 
             // Include imageUrl - use null to explicitly clear, or the URL to set
@@ -538,14 +551,19 @@ export default function RecipeFormView({
                     {/* Source fields based on type */}
                     {sourceType === 'book' && (
                         <div className="space-y-3 p-4 bg-blue-50/50 rounded-xl border border-blue-100 mt-3">
-                            <input
-                                type="text"
-                                value={sourceBookTitle}
-                                onChange={(e) => setSourceBookTitle(e.target.value)}
-                                className="input"
-                                placeholder="Buchtitel"
-                                maxLength={200}
-                            />
+                            <div>
+                                <input
+                                    type="text"
+                                    value={sourceBookTitle}
+                                    onChange={(e) => setSourceBookTitle(e.target.value)}
+                                    className={`input ${errors.sourceBookTitle ? 'border-error' : ''}`}
+                                    placeholder="Buchtitel *"
+                                    maxLength={200}
+                                />
+                                {errors.sourceBookTitle && (
+                                    <p className="text-error text-sm mt-1">{errors.sourceBookTitle}</p>
+                                )}
+                            </div>
                             <input
                                 type="text"
                                 value={sourceBookPage}
@@ -560,13 +578,16 @@ export default function RecipeFormView({
                     {sourceType === 'url' && (
                         <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 mt-3">
                             <input
-                                type="url"
+                                type="text"
                                 value={sourceUrl}
                                 onChange={(e) => setSourceUrl(e.target.value)}
-                                className="input"
-                                placeholder="https://..."
+                                className={`input ${errors.sourceUrl ? 'border-error' : ''}`}
+                                placeholder="z.B. google.de oder https://... *"
                                 maxLength={2000}
                             />
+                            {errors.sourceUrl && (
+                                <p className="text-error text-sm mt-1">{errors.sourceUrl}</p>
+                            )}
                         </div>
                     )}
                 </div>
